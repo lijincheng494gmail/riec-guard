@@ -3,21 +3,29 @@
 
 **Auditable decisions from conflicting evidence.**
 
-This directory is the clean-room public repository seed for **RIEC Guard - Fill Pack**, a
-Work & Productivity project built during OpenAI Build Week. It is intentionally not a
-working product yet. The implementation is governed by the Phase E Codex task queue.
+This is the clean-room public repository for **RIEC Guard — Fill Pack**, an OpenAI Build Week
+Work & Productivity project. Development is task- and gate-driven; implemented status is recorded
+separately from planned functionality.
 
-## Research foundation
+## Prior research and Build Week work
 
-RIEC Guard builds on the peer-reviewed method:
+RIEC Guard builds on the prior peer-reviewed **RIEC-L1 method**:
 
 > J. Li, Y. Zhao, and X. Li, "RIEC-L1: An evidence-led conflict-resolution layer for finite
 > candidate libraries in engineering data," *Array* (2026), DOI:
 > `10.1016/j.array.2026.101097`.
 
-The paper and historical starter are **prior work**. The clean-room engine, Fill Pack,
-GPT-5.6 workflow, web product, tests, deployment, and claim-audit pipeline are the
-Build Week extension. See `docs/PRIOR_WORK_BOUNDARY.md` and `docs/BUILD_WEEK_DELTA.md`.
+RIEC-L1 and the historical engineering cases, dairy analysis, and Fill starter predate this
+repository. The paper supports the methodology; it does not peer-review or validate this product.
+During Build Week, this repository is building the clean-room Fill product layer, controlled
+GPT-5.6 workflow, public mechanism benchmark, UI, evidence bundle, and release evidence. Only
+competition-period additions verified by dated commits and human acceptance are presented as
+Build Week work.
+
+See the detailed [prior-work boundary](docs/PRIOR_WORK_BOUNDARY.md),
+[Build Week delta and timeline](docs/BUILD_WEEK_DELTA.md),
+[Codex collaboration record](docs/CODEX_COLLABORATION.md), and
+[human decision log](docs/DECISION_LOG.md).
 
 ## Safety boundary
 
@@ -27,16 +35,18 @@ Build Week extension. See `docs/PRIOR_WORK_BOUNDARY.md` and `docs/BUILD_WEEK_DEL
 - A screening pilot reference is not a production setpoint, compliance decision, or
   achieved saving.
 
-## Start
+## Development status and testing
 
-From the command-pack root, read `00_READ_THIS_FIRST_CN.txt`, then paste
-`01_START_PROMPT_FOR_CODEX.txt` into the main Codex GPT-5.6 Sol thread. Execute only
-`TASK-001` first.
+The clean-room repository, pinned toolchain, public-first runtime roots, and guarded ephemeral CSV
+source layer are implemented through accepted TASK-004. The AuditContract runtime, grouped engine,
+protocols, GPT-5.6 stages, Streamlit workflow, deployment, and final submission package remain
+planned until their named tasks and gates pass.
 
-Seed validation:
+Use the managed Python workflow documented in [testing instructions](docs/TESTING_INSTRUCTIONS.md):
 
 ```bash
-python scripts/validate_seed.py
-python -m pytest
-python scripts/public_release_scan.py .
+make install
+make test
+make lint
+make type-check
 ```
