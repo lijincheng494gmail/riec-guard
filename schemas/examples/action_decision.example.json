@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "contract_id": "AC-84E73F9B8FB0",
+  "state": "pilot_only_conservative",
+  "reason_codes": [
+    "RIEC_NEAR_TIE",
+    "PARAMETRIC_DIAGNOSTIC_MATERIAL"
+  ],
+  "safe_headroom": {
+    "value": 0.45,
+    "unit": "mL",
+    "basis": "bootstrap_lower_bounds",
+    "eligible_protocol_ids": [
+      "H1_group_empirical_quantile",
+      "H2_gaussian_residual_tail",
+      "H3_student_t_residual_tail"
+    ]
+  },
+  "pilot_reference": {
+    "lower": 0.1,
+    "upper": 0.22,
+    "unit": "mL",
+    "rounding_mode": "down_to_measurement_resolution",
+    "screening_only": true
+  },
+  "gates": {
+    "contract_valid": true,
+    "evidence_sufficient": true,
+    "ordered_stability": "pass",
+    "zero_headroom_block": false
+  },
+  "conflict": {
+    "material_protocol_conflict": false,
+    "near_tie": true,
+    "protocol_spread": 0.25,
+    "spread_tolerance": 0.5
+  },
+  "evidence_ids": [
+    "EV-ACTION-AFEDFFBAC970",
+    "EV-RIEC-F242236CE17C",
+    "EV-PROTOCOL-076951CE4DB2",
+    "EV-BOOTSTRAP-D50D510D8C7C"
+  ],
+  "claim_boundary": {
+    "allowed": [
+      "Describe the retrospective protocol estimates and evidence conflicts.",
+      "Describe the pilot reference as screening-only."
+    ],
+    "conditional": [
+      "State that the range is conditional on the confirmed illustrative policy and requires controlled validation."
+    ],
+    "prohibited": [
+      "Do not claim achieved savings, regulatory compliance, an optimal production setpoint, or successful live deployment."
+    ]
+  }
+}

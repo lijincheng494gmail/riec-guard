@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/report-draft.schema.json",
+  "title": "RIEC Guard Evidence-Bound Report Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "title",
+    "sections",
+    "claim_map",
+    "numeric_bindings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[A-F0-9]{12}$"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "section_id",
+          "heading",
+          "paragraphs"
+        ],
+        "properties": {
+          "section_id": {
+            "type": "string",
+            "pattern": "^SEC-[0-9]{2}$"
+          },
+          "heading": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "paragraphs": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "paragraph_id",
+                "text_template",
+                "claim_ids",
+                "evidence_ids"
+              ],
+              "properties": {
+                "paragraph_id": {
+                  "type": "string",
+                  "pattern": "^P-[0-9]{3}$"
+                },
+                "text_template": {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                "claim_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^CLM-[0-9]{3}$"
+                  }
+                },
+                "evidence_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "claim_map": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "claim_text_template",
+          "evidence_ids",
+          "conditional"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^CLM-[0-9]{3}$"
+          },
+          "claim_text_template": {
+            "type": "string",
+            "maxLength": 3000
+          },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+            }
+          },
+          "conditional": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "numeric_bindings": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "placeholder",
+          "evidence_id",
+          "json_pointer",
+          "format_spec"
+        ],
+        "properties": {
+          "placeholder": {
+            "type": "string",
+            "pattern": "^\\{\\{[a-zA-Z][a-zA-Z0-9_]{0,63}\\}\\}$"
+          },
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+          },
+          "json_pointer": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "format_spec": {
+            "type": "string",
+            "maxLength": 50
+          }
+        }
+      }
+    }
+  }
+}

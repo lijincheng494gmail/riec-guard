@@ -1,0 +1,173 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "mode": "public_builtin",
+  "started_at": "2026-07-18T08:01:00Z",
+  "finished_at": "2026-07-18T08:04:00Z",
+  "status": "completed_with_warnings",
+  "code": {
+    "repository": "riec-guard",
+    "commit_sha": "abcdef1234567890abcdef1234567890abcdef12",
+    "dirty": false,
+    "build_week_delta_version": "phase-d-example-1.0.0"
+  },
+  "environment": {
+    "python": "3.12.4",
+    "platform": "Linux x86_64",
+    "dependency_lock_sha256": "da567de602685efa42f1d69200f3de0a0a23d1fe00619e51424ea0adacc87de1"
+  },
+  "inputs": [
+    {
+      "artifact_id": "heavy_tail_particulate.v1",
+      "sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "classification": "public_synthetic",
+      "row_count": 600
+    },
+    {
+      "artifact_id": "illustrative_policy.v1",
+      "sha256": "c992143effb452bcb076a775ea8652ba39a35e0a33ce38d78aa715be113175a3",
+      "classification": "policy_text",
+      "row_count": null
+    }
+  ],
+  "contract": {
+    "contract_id": "AC-84E73F9B8FB0",
+    "sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+    "schema_version": "1.0.0",
+    "confirmation_status": "confirmed"
+  },
+  "registries": {
+    "candidate_registry": {
+      "id": "fill-structural-candidates.v1",
+      "version": "1.0.0",
+      "sha256": "ec0c22a712d338bc9209fafd7f26c65346f339a80e546fa8f3dda4de5a36635c"
+    },
+    "protocol_versions": {
+      "D0_mean_diagnostic": "1.0.0",
+      "H1_group_empirical_quantile": "1.0.0",
+      "H2_gaussian_residual_tail": "1.0.0",
+      "H3_student_t_residual_tail": "1.0.0",
+      "U1_group_bootstrap_bound": "1.0.0",
+      "G1_ordered_stability_screen": "1.0.0",
+      "G2_evidence_sufficiency_gate": "1.0.0"
+    },
+    "action_engine_version": "1.0.0"
+  },
+  "randomness": {
+    "global_seed": 20260718,
+    "bootstrap_seed": 20260718,
+    "bootstrap_replicates": 200
+  },
+  "gpt": {
+    "configured_model": "gpt-5.6-sol",
+    "api": "responses",
+    "store": false,
+    "calls": [
+      {
+        "purpose": "contract_compile",
+        "status": "not_called",
+        "request_id": null,
+        "model": null,
+        "latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "fallback_used": false,
+        "error_class": null
+      },
+      {
+        "purpose": "memo_draft",
+        "status": "success",
+        "request_id": "resp_example_memo",
+        "model": "gpt-5.6-sol",
+        "latency_ms": 870,
+        "input_tokens": 4200,
+        "output_tokens": 680,
+        "fallback_used": false,
+        "error_class": null
+      },
+      {
+        "purpose": "claim_audit",
+        "status": "success",
+        "request_id": "resp_example_claim",
+        "model": "gpt-5.6-sol",
+        "latency_ms": 610,
+        "input_tokens": 2700,
+        "output_tokens": 510,
+        "fallback_used": false,
+        "error_class": null
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "artifact_id": "audit_contract.json",
+      "path": "examples/audit_contract.example.json",
+      "sha256": "8f3218f9c476a534c7a1c6f4cc453f61d292f18a9041192ef889f33bcf142f2d",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "candidate_registry.json",
+      "path": "examples/candidate_registry.example.json",
+      "sha256": "52ef523ad14e3366af88251ce2831f5da69db3a7641e18af9979313985f8b2d3",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "selection.json",
+      "path": "examples/riec_selection.example.json",
+      "sha256": "a1e74c10bcda55479022cfa60773401d26129445af86488b556d30abbc59fc02",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "protocol_results.json",
+      "path": "examples/protocol_results.example.json",
+      "sha256": "78fecd8f27b27b824793c4626e5d964e2bb24b75402070fe7944ba4a8aa35e4c",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "action_decision.json",
+      "path": "examples/action_decision.example.json",
+      "sha256": "ef40b0059d6bdd4e8b2b0090dba442c8911d6026ecaaa7a145afdbe553d87527",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "evidence_ledger.json",
+      "path": "examples/evidence_ledger.example.json",
+      "sha256": "a1f4df9c7d782cff7e61b27d839d422d0e59b37ba0b70e9d4026682d350d2b41",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "report_draft.json",
+      "path": "examples/report_draft.example.json",
+      "sha256": "84db7dfbfe33207501dcc251096528d31d1e45e19de475d755b93cccb38d2854",
+      "media_type": "application/json",
+      "public_safe": true
+    },
+    {
+      "artifact_id": "claim_audit.json",
+      "path": "examples/claim_audit.example.json",
+      "sha256": "18bd4e4f854e1d73ec1a65f66ae8a651343d71f3a5d027982720818e0e812da2",
+      "media_type": "application/json",
+      "public_safe": true
+    }
+  ],
+  "privacy": {
+    "raw_rows_sent_to_gpt": false,
+    "direct_identifiers_sent_to_gpt": false,
+    "storage_root_class": "public_ephemeral",
+    "release_scan_passed": true
+  },
+  "fallbacks": [
+    {
+      "component": "contract_compile",
+      "trigger": "Versioned built-in public scenario selected.",
+      "fallback": "Used the confirmed versioned built-in contract; no GPT compiler call was needed.",
+      "honesty_label": "Contract mode: versioned built-in."
+    }
+  ]
+}

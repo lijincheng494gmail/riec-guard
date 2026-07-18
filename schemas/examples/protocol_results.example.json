@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "contract_id": "AC-84E73F9B8FB0",
+  "target_scope": {
+    "product_id": "ALL",
+    "stream_id": null
+  },
+  "results": [
+    {
+      "protocol_id": "D0_mean_diagnostic",
+      "protocol_version": "1.0.0",
+      "role": "descriptive",
+      "status": "ok",
+      "point_estimate": 1.24,
+      "unit": "mL",
+      "uncertainty": {
+        "kind": "none",
+        "level": null,
+        "lower": null,
+        "upper": null,
+        "conditional_on_selection": false
+      },
+      "metrics": [
+        {
+          "name": "mean_overfill",
+          "value": 1.24,
+          "unit": "mL"
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-PROFILE-91C7DB559190"
+      ],
+      "runtime_ms": 4,
+      "algorithm_notes": "Descriptive only; not an action protocol."
+    },
+    {
+      "protocol_id": "H1_group_empirical_quantile",
+      "protocol_version": "1.0.0",
+      "role": "headroom",
+      "status": "ok",
+      "point_estimate": 0.7,
+      "unit": "mL",
+      "uncertainty": {
+        "kind": "one_sided_lower",
+        "level": 0.9,
+        "lower": 0.52,
+        "upper": null,
+        "conditional_on_selection": true
+      },
+      "metrics": [
+        {
+          "name": "n",
+          "value": 600,
+          "unit": null
+        },
+        {
+          "name": "k_floor_alpha_n",
+          "value": 6,
+          "unit": null
+        },
+        {
+          "name": "order_statistic_index_one_based",
+          "value": 7,
+          "unit": null
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-PROTOCOL-0211688EFE8B",
+        "EV-BOOTSTRAP-D50D510D8C7C"
+      ],
+      "runtime_ms": 8,
+      "algorithm_notes": "Strict adjusted quantity < lower limit."
+    },
+    {
+      "protocol_id": "H2_gaussian_residual_tail",
+      "protocol_version": "1.0.0",
+      "role": "headroom",
+      "status": "warning",
+      "point_estimate": 0.85,
+      "unit": "mL",
+      "uncertainty": {
+        "kind": "one_sided_lower",
+        "level": 0.9,
+        "lower": 0.6,
+        "upper": null,
+        "conditional_on_selection": true
+      },
+      "metrics": [
+        {
+          "name": "residual_excess_kurtosis",
+          "value": 5.4,
+          "unit": null
+        },
+        {
+          "name": "groupwise_scale_ratio",
+          "value": 2.1,
+          "unit": null
+        }
+      ],
+      "warnings": [
+        {
+          "code": "HEAVY_TAIL_DIAGNOSTIC",
+          "severity": "material",
+          "message": "Residual excess kurtosis exceeds the versioned material-warning threshold."
+        }
+      ],
+      "evidence_ids": [
+        "EV-PROTOCOL-076951CE4DB2",
+        "EV-BOOTSTRAP-D50D510D8C7C"
+      ],
+      "runtime_ms": 24,
+      "algorithm_notes": "Cross-fitted Gaussian residual-tail risk, conservatively aggregated across equivalence set."
+    },
+    {
+      "protocol_id": "H3_student_t_residual_tail",
+      "protocol_version": "1.0.0",
+      "role": "headroom",
+      "status": "ok",
+      "point_estimate": 0.61,
+      "unit": "mL",
+      "uncertainty": {
+        "kind": "one_sided_lower",
+        "level": 0.9,
+        "lower": 0.45,
+        "upper": null,
+        "conditional_on_selection": true
+      },
+      "metrics": [
+        {
+          "name": "fitted_df",
+          "value": 4.8,
+          "unit": null
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-PROTOCOL-FB3B03F958DA",
+        "EV-BOOTSTRAP-D50D510D8C7C"
+      ],
+      "runtime_ms": 47,
+      "algorithm_notes": "Cross-fitted Student-t residual-tail risk with bounded df."
+    },
+    {
+      "protocol_id": "U1_group_bootstrap_bound",
+      "protocol_version": "1.0.0",
+      "role": "uncertainty",
+      "status": "ok",
+      "point_estimate": null,
+      "unit": "mL",
+      "uncertainty": {
+        "kind": "one_sided_lower",
+        "level": 0.9,
+        "lower": 0.45,
+        "upper": null,
+        "conditional_on_selection": true
+      },
+      "metrics": [
+        {
+          "name": "requested_replicates",
+          "value": 200,
+          "unit": null
+        },
+        {
+          "name": "successful_replicates",
+          "value": 194,
+          "unit": null
+        },
+        {
+          "name": "failed_replicates",
+          "value": 6,
+          "unit": null
+        },
+        {
+          "name": "protocol_lower_bounds",
+          "value": [
+            0.52,
+            0.6,
+            0.45
+          ],
+          "unit": "mL"
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-BOOTSTRAP-D50D510D8C7C"
+      ],
+      "runtime_ms": 1830,
+      "algorithm_notes": "Whole-group resampling; main selection frozen."
+    },
+    {
+      "protocol_id": "G1_ordered_stability_screen",
+      "protocol_version": "1.0.0",
+      "role": "stability_gate",
+      "status": "ok",
+      "point_estimate": null,
+      "unit": null,
+      "uncertainty": {
+        "kind": "none",
+        "level": null,
+        "lower": null,
+        "upper": null,
+        "conditional_on_selection": false
+      },
+      "metrics": [
+        {
+          "name": "ordered_coverage",
+          "value": 0.96,
+          "unit": "fraction"
+        },
+        {
+          "name": "eligible_streams",
+          "value": 4,
+          "unit": null
+        },
+        {
+          "name": "material_violations",
+          "value": 0,
+          "unit": null
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-STABILITY-EE92B208355F"
+      ],
+      "runtime_ms": 12,
+      "algorithm_notes": "Screening gate, not certified SPC."
+    },
+    {
+      "protocol_id": "G2_evidence_sufficiency_gate",
+      "protocol_version": "1.0.0",
+      "role": "evidence_gate",
+      "status": "ok",
+      "point_estimate": null,
+      "unit": null,
+      "uncertainty": {
+        "kind": "none",
+        "level": null,
+        "lower": null,
+        "upper": null,
+        "conditional_on_selection": false
+      },
+      "metrics": [
+        {
+          "name": "n_rows",
+          "value": 600,
+          "unit": null
+        },
+        {
+          "name": "n_groups",
+          "value": 12,
+          "unit": null
+        },
+        {
+          "name": "expected_tail_count",
+          "value": 6.0,
+          "unit": null
+        }
+      ],
+      "warnings": [],
+      "evidence_ids": [
+        "EV-PROTOCOL-1D033358C9E5"
+      ],
+      "runtime_ms": 3,
+      "algorithm_notes": "All action-level default support thresholds pass."
+    }
+  ]
+}

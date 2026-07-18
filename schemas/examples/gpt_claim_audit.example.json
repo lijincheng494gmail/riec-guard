@@ -1,0 +1,47 @@
+{
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "classification": "conditional",
+      "reason_code": "RETROSPECTIVE_SCREENING_ONLY",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "required_qualifier": "Describe it as retrospective screening and require controlled validation.",
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-002",
+      "classification": "conditional",
+      "reason_code": "PILOT_REFERENCE_NOT_SETPOINT",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "required_qualifier": "State that it is not a production setpoint.",
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-003",
+      "classification": "supported",
+      "reason_code": "DIRECT_LEDGER_SUPPORT",
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C",
+        "EV-PROTOCOL-076951CE4DB2"
+      ],
+      "required_qualifier": null,
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-004",
+      "classification": "supported",
+      "reason_code": "FIXED_CLAIM_BOUNDARY",
+      "evidence_ids": [
+        "EV-CLAIM-9460D4019B74"
+      ],
+      "required_qualifier": null,
+      "replacement_text": null
+    }
+  ],
+  "overall_status": "pass",
+  "export_recommendation": true
+}

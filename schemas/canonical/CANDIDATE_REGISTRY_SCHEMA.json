@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/candidate-registry.schema.json",
+  "title": "RIEC-L1 Candidate Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_id",
+    "registry_version",
+    "frozen_before_ranking",
+    "baseline_candidate_id",
+    "candidates"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "registry_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "registry_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "frozen_before_ranking": {
+      "const": true
+    },
+    "baseline_candidate_id": {
+      "const": "M0_intercept"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "label",
+        "model_family",
+        "formula_terms",
+        "version",
+        "parameter_count_rule",
+        "feasibility_requirements",
+        "enabled"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "pattern": "^M[0-9]+_[a-z0-9_]+$"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "model_family": {
+          "enum": [
+            "ols_fixed_effects"
+          ]
+        },
+        "formula_terms": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 12,
+          "items": {
+            "enum": [
+              "intercept",
+              "product",
+              "stream",
+              "shift",
+              "time"
+            ]
+          }
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "parameter_count_rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "include_intercept"
+          ],
+          "properties": {
+            "kind": {
+              "const": "realized_design_rank"
+            },
+            "include_intercept": {
+              "type": "boolean"
+            }
+          }
+        },
+        "feasibility_requirements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required_semantics",
+            "min_rows",
+            "min_groups",
+            "full_rank_required"
+          ],
+          "properties": {
+            "required_semantics": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "quantity",
+                  "product",
+                  "stream",
+                  "shift",
+                  "time",
+                  "deployment_group"
+                ]
+              }
+            },
+            "min_rows": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "min_groups": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "full_rank_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        }
+      }
+    }
+  }
+}

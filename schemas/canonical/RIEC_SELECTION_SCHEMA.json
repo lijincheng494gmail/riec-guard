@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/riec-selection.schema.json",
+  "title": "RIEC-L1 Selection Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "registry_id",
+    "baseline_candidate_id",
+    "risk_aggregation",
+    "c",
+    "candidate_ledger",
+    "raw_numeric_winner",
+    "runner_up",
+    "score_gap",
+    "decision_status",
+    "equivalence_set",
+    "pairwise_switches",
+    "evidence_ids"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[A-F0-9]{12}$"
+    },
+    "registry_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "baseline_candidate_id": {
+      "const": "M0_intercept"
+    },
+    "risk_aggregation": {
+      "const": "row_weighted_grouped_mse"
+    },
+    "c": {
+      "type": "number",
+      "minimum": 0
+    },
+    "candidate_ledger": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "status",
+          "parameter_count",
+          "bic_eff",
+          "grouped_risk",
+          "group_balanced_risk",
+          "xpe",
+          "c_score",
+          "n_rows",
+          "n_groups",
+          "failure_code",
+          "evidence_ids"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "pattern": "^M[0-9]+_[a-z0-9_]+$"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "infeasible",
+              "fit_failed",
+              "prediction_failed"
+            ]
+          },
+          "parameter_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "bic_eff": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "grouped_risk": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "group_balanced_risk": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "xpe": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "c_score": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "n_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "n_groups": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failure_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+            }
+          }
+        }
+      }
+    },
+    "raw_numeric_winner": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^M[0-9]+_[a-z0-9_]+$"
+    },
+    "runner_up": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^M[0-9]+_[a-z0-9_]+$"
+    },
+    "score_gap": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "decision_status": {
+      "enum": [
+        "selected",
+        "near_tie",
+        "no_feasible_candidate"
+      ]
+    },
+    "equivalence_set": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^M[0-9]+_[a-z0-9_]+$"
+      }
+    },
+    "pairwise_switches": {
+      "type": "array",
+      "maxItems": 496,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_a",
+          "candidate_b",
+          "switch_c",
+          "identifiable",
+          "interpretation",
+          "evidence_ids"
+        ],
+        "properties": {
+          "candidate_a": {
+            "type": "string",
+            "pattern": "^M[0-9]+_[a-z0-9_]+$"
+          },
+          "candidate_b": {
+            "type": "string",
+            "pattern": "^M[0-9]+_[a-z0-9_]+$"
+          },
+          "switch_c": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "identifiable": {
+            "type": "boolean"
+          },
+          "interpretation": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "evidence_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+            }
+          }
+        }
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+      }
+    }
+  }
+}

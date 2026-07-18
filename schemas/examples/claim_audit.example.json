@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "report_draft_sha256": "0796108155d00298f63cc85a9e546fb768b9131fe467b6b4412533d31fdb2b3a",
+  "deterministic_precheck": {
+    "passed": true,
+    "uncited_numbers": [],
+    "unknown_evidence_ids": [],
+    "placeholder_errors": [],
+    "prohibited_phrases": []
+  },
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "text": "The safe retrospective screening headroom is evidence-bound.",
+      "materiality": "headline",
+      "classification": "conditional",
+      "reason_code": "RETROSPECTIVE_SCREENING_ONLY",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "required_qualifier": "Describe it as retrospective screening and require controlled validation.",
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-002",
+      "text": "A bounded conservative pilot reference is reported.",
+      "materiality": "headline",
+      "classification": "conditional",
+      "reason_code": "PILOT_REFERENCE_NOT_SETPOINT",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "required_qualifier": "State that it is not a production setpoint.",
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-003",
+      "text": "RIEC-L1 reported a near-tie equivalence set and H2 carried a material diagnostic.",
+      "materiality": "material",
+      "classification": "supported",
+      "reason_code": "DIRECT_LEDGER_SUPPORT",
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C",
+        "EV-PROTOCOL-076951CE4DB2"
+      ],
+      "required_qualifier": null,
+      "replacement_text": null
+    },
+    {
+      "claim_id": "CLM-004",
+      "text": "The result does not establish production deployment, compliance, achieved savings, or an optimal setpoint.",
+      "materiality": "material",
+      "classification": "supported",
+      "reason_code": "FIXED_CLAIM_BOUNDARY",
+      "evidence_ids": [
+        "EV-CLAIM-9460D4019B74"
+      ],
+      "required_qualifier": null,
+      "replacement_text": null
+    }
+  ],
+  "overall_status": "pass",
+  "export_allowed": true,
+  "auditor": {
+    "mode": "gpt_structured_output",
+    "model": "gpt-5.6-sol",
+    "request_id": "resp_example_phase_d",
+    "fallback_used": false
+  }
+}

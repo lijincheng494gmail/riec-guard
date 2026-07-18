@@ -1,0 +1,23 @@
+{
+  "ruleset_id": "fill-claims-v1",
+  "classes": [
+    "supported",
+    "conditional",
+    "unsupported",
+    "overstated",
+    "prohibited"
+  ],
+  "prohibited_without_separate_evidence": [
+    "achieved_savings",
+    "compliance_guarantee",
+    "optimal_production_setpoint",
+    "safe_production_setpoint",
+    "successful_live_deployment",
+    "causal_improvement",
+    "universal_cross_domain_validity",
+    "zero_underfill_risk",
+    "replaces_engineers"
+  ],
+  "mandatory_phrase": "retrospective screening reference",
+  "status": "frozen_for_implementation"
+}

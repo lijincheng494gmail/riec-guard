@@ -1,0 +1,415 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "canonicalization": {
+    "json_encoding": "utf-8",
+    "sort_keys": true,
+    "excluded_fields": [
+      "evidence_id",
+      "created_at",
+      "content_sha256"
+    ],
+    "hash_algorithm": "sha256",
+    "id_format": "EV-<COMPONENT>-<FIRST12_UPPER_HEX>"
+  },
+  "items": [
+    {
+      "evidence_id": "EV-PROFILE-91C7DB559190",
+      "content_sha256": "91c7db5591901fb3a875485ef360cc4f220c4d6a59f4a7fc6ff31cadf173e2c9",
+      "component": "PROFILE",
+      "kind": "statistic",
+      "status": "ok",
+      "statement": "The public fixture contains 600 rows across 12 deployment groups.",
+      "value": {
+        "n_rows": 600,
+        "n_groups": 12,
+        "expected_tail_count": 6.0
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-RIEC-F242236CE17C",
+      "content_sha256": "f242236ce17c3c5bcd3e69cda103bc292744c750c1c1354b2652ddd8120ea50a",
+      "component": "RIEC",
+      "kind": "statistic",
+      "status": "warning",
+      "statement": "M2 and M4 form a numerical near-tie equivalence set under c=1.",
+      "value": {
+        "raw_winner": "M2_product_stream",
+        "runner_up": "M4_product_stream_shift",
+        "score_gap": 4e-07,
+        "equivalence_set": [
+          "M2_product_stream",
+          "M4_product_stream_shift"
+        ]
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-PROFILE-91C7DB559190"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-BOUNDARY-F8EF625144BB",
+      "content_sha256": "f8ef625144bb5a5761442f66ce9f4d04f0c859bfb4ab6dcdaef05c040417f830",
+      "component": "BOUNDARY",
+      "kind": "boundary",
+      "status": "ok",
+      "statement": "The M2/M4 pairwise score switch is identifiable at c=1.18.",
+      "value": {
+        "candidate_a": "M2_product_stream",
+        "candidate_b": "M4_product_stream_shift",
+        "switch_c": 1.18
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-PROTOCOL-0211688EFE8B",
+      "content_sha256": "0211688efe8b2e6fcff58d21f03c61d14ba736f6ffc984274719665c0e09c780",
+      "component": "PROTOCOL",
+      "kind": "statistic",
+      "status": "ok",
+      "statement": "H1 empirical strict-tail headroom is 0.70 mL.",
+      "value": {
+        "protocol_id": "H1_group_empirical_quantile",
+        "headroom": 0.7,
+        "n": 600,
+        "k": 6,
+        "threshold_order": 7
+      },
+      "unit": "mL",
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-PROFILE-91C7DB559190"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-PROTOCOL-076951CE4DB2",
+      "content_sha256": "076951ce4db29c3043dd0013d0396b0c374494f182ecb735601bab4c4991f01b",
+      "component": "PROTOCOL",
+      "kind": "statistic",
+      "status": "material",
+      "statement": "H2 Gaussian residual-tail headroom is 0.85 mL, with material heavy-tail diagnostics.",
+      "value": {
+        "protocol_id": "H2_gaussian_residual_tail",
+        "headroom": 0.85,
+        "residual_excess_kurtosis": 5.4,
+        "groupwise_scale_ratio": 2.1
+      },
+      "unit": "mL",
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-PROTOCOL-FB3B03F958DA",
+      "content_sha256": "fb3b03f958da6e7914f111290dc4c2de45ca9473298cccb2ff86bc671d968de2",
+      "component": "PROTOCOL",
+      "kind": "statistic",
+      "status": "ok",
+      "statement": "H3 Student-t residual-tail headroom is 0.61 mL.",
+      "value": {
+        "protocol_id": "H3_student_t_residual_tail",
+        "headroom": 0.61,
+        "df": 4.8
+      },
+      "unit": "mL",
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-BOOTSTRAP-D50D510D8C7C",
+      "content_sha256": "d50d510d8c7c34540e31abd0d808e182b883e31d6c58e90f54f0801d0d390704",
+      "component": "BOOTSTRAP",
+      "kind": "statistic",
+      "status": "ok",
+      "statement": "The 90% one-sided group-bootstrap lower bounds are 0.52, 0.60, and 0.45 mL for H1, H2, and H3.",
+      "value": {
+        "confidence": 0.9,
+        "successful_replicates": 194,
+        "failed_replicates": 6,
+        "lower_bounds": {
+          "H1_group_empirical_quantile": 0.52,
+          "H2_gaussian_residual_tail": 0.6,
+          "H3_student_t_residual_tail": 0.45
+        },
+        "conditional_on_selection": true
+      },
+      "unit": "mL",
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-PROTOCOL-0211688EFE8B",
+        "EV-PROTOCOL-076951CE4DB2",
+        "EV-PROTOCOL-FB3B03F958DA"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-STABILITY-EE92B208355F",
+      "content_sha256": "ee92b208355fc8e1ac0a3a9f22e882fe24b46b16346a398671ec0264066c64ce",
+      "component": "STABILITY",
+      "kind": "diagnostic",
+      "status": "ok",
+      "statement": "The ordered screening gate passed for eligible streams in this fixture.",
+      "value": {
+        "status": "pass",
+        "eligible_streams": 4,
+        "ordered_coverage": 0.96,
+        "violations": 0
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-PROFILE-91C7DB559190"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-PROTOCOL-1D033358C9E5",
+      "content_sha256": "1d033358c9e52f48ef25bc6d5b1b7864cd61a4a9db5c41f22a6dbb863677bab9",
+      "component": "PROTOCOL",
+      "kind": "diagnostic",
+      "status": "ok",
+      "statement": "Action-level row, group, and tail-support thresholds pass.",
+      "value": {
+        "min_rows_pass": true,
+        "min_groups_action_pass": true,
+        "expected_tail_count": 6.0,
+        "min_expected_tail_count": 5,
+        "action_evidence_sufficient": true
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-PROFILE-91C7DB559190"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-ACTION-AFEDFFBAC970",
+      "content_sha256": "afedffbac9707ffa4e3dbc998abdd1efc481e99f0b6b1c151be9297838d0a4ed",
+      "component": "ACTION",
+      "kind": "decision_reason",
+      "status": "material",
+      "statement": "The action is pilot_only_conservative because the RIEC selection is a near tie and H2 has a material heavy-tail warning.",
+      "value": {
+        "state": "pilot_only_conservative",
+        "safe_headroom": 0.45,
+        "pilot_lower": 0.1,
+        "pilot_upper": 0.22,
+        "reason_codes": [
+          "RIEC_NEAR_TIE",
+          "PARAMETRIC_DIAGNOSTIC_MATERIAL"
+        ]
+      },
+      "unit": "mL",
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-RIEC-F242236CE17C",
+        "EV-PROTOCOL-0211688EFE8B",
+        "EV-PROTOCOL-076951CE4DB2",
+        "EV-PROTOCOL-FB3B03F958DA",
+        "EV-BOOTSTRAP-D50D510D8C7C",
+        "EV-STABILITY-EE92B208355F",
+        "EV-PROTOCOL-1D033358C9E5"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    },
+    {
+      "evidence_id": "EV-CLAIM-9460D4019B74",
+      "content_sha256": "9460d4019b74789b1c921e05cced204e1946644ed56859a83d8d37f27b9c9b78",
+      "component": "CLAIM",
+      "kind": "claim_rule",
+      "status": "blocking",
+      "statement": "The audit supports retrospective screening language only; achieved savings, compliance, optimal setpoint, and live-validation claims are prohibited.",
+      "value": {
+        "allowed": [
+          "retrospective screening reference",
+          "protocol conflict",
+          "evidence limitations"
+        ],
+        "prohibited": [
+          "achieved savings",
+          "compliance guarantee",
+          "optimal setpoint",
+          "live validation"
+        ]
+      },
+      "unit": null,
+      "source_refs": [
+        {
+          "artifact_id": "heavy_tail_particulate.v1",
+          "artifact_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+          "locator": "public synthetic fixture"
+        },
+        {
+          "artifact_id": "audit_contract.json",
+          "artifact_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+          "locator": "AC-84E73F9B8FB0"
+        }
+      ],
+      "parent_evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "input_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+      "contract_sha256": "84e73f9b8fb08527de0e976958b1aa83b2bf78f25990ceb6fe86930c7479b6dd",
+      "implementation_version": "phase-d-example-1.0.0",
+      "created_at": "2026-07-18T08:03:00Z"
+    }
+  ]
+}

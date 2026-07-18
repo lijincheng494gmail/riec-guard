@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/error-envelope.schema.json",
+  "title": "RIEC Guard Structured Error Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "error_id",
+    "stage",
+    "error_class",
+    "code",
+    "message",
+    "recoverable",
+    "user_action",
+    "safe_details"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "error_id": {
+      "type": "string",
+      "pattern": "^ERR-[A-F0-9]{12}$"
+    },
+    "stage": {
+      "enum": [
+        "upload",
+        "profile",
+        "contract",
+        "riec",
+        "protocol",
+        "decision",
+        "gpt",
+        "report",
+        "export",
+        "release_scan"
+      ]
+    },
+    "error_class": {
+      "enum": [
+        "validation",
+        "scale_limit",
+        "data_quality",
+        "fit_failure",
+        "api_unavailable",
+        "api_invalid_output",
+        "privacy_block",
+        "security_block",
+        "internal"
+      ]
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "recoverable": {
+      "type": "boolean"
+    },
+    "user_action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1000
+    },
+    "safe_details": {
+      "type": "object"
+    },
+    "cause_chain": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    }
+  }
+}

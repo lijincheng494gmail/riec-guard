@@ -1,0 +1,105 @@
+{
+  "column_mapping": [
+    {
+      "semantic_role": "quantity",
+      "column": "quantity_ml",
+      "confidence": 0.99,
+      "confirmed": false,
+      "reasons": [
+        "numeric",
+        "name match"
+      ]
+    },
+    {
+      "semantic_role": "product",
+      "column": "product_id",
+      "confidence": 0.99,
+      "confirmed": false,
+      "reasons": [
+        "categorical",
+        "name match"
+      ]
+    },
+    {
+      "semantic_role": "deployment_group",
+      "column": "batch_id",
+      "confidence": 0.98,
+      "confirmed": false,
+      "reasons": [
+        "batch identifier"
+      ]
+    },
+    {
+      "semantic_role": "time",
+      "column": "timestamp",
+      "confidence": 0.99,
+      "confirmed": false,
+      "reasons": [
+        "datetime parse"
+      ]
+    },
+    {
+      "semantic_role": "stream",
+      "column": "stream_id",
+      "confidence": 0.99,
+      "confirmed": false,
+      "reasons": [
+        "process stream"
+      ]
+    },
+    {
+      "semantic_role": "shift",
+      "column": "shift_id",
+      "confidence": 0.99,
+      "confirmed": false,
+      "reasons": [
+        "shift identifier"
+      ]
+    }
+  ],
+  "measurement": {
+    "quantity_semantics": "volume",
+    "unit": "mL",
+    "measurement_resolution": 0.01,
+    "conversion_required": false,
+    "conversion_method": "none",
+    "fixed_density": null,
+    "formula_note": null
+  },
+  "grouping": {
+    "deployment_unit_name": "production batch",
+    "deployment_group_columns": [
+      "batch_id"
+    ],
+    "nested_context_columns": [
+      "stream_id",
+      "shift_id"
+    ]
+  },
+  "ordering": {
+    "status": "confirmed",
+    "time_column": "timestamp",
+    "timezone": "UTC",
+    "within_stream_order_confirmed": true,
+    "tie_break_columns": [
+      "row_sequence"
+    ]
+  },
+  "policy": {
+    "nominal_quantity": 250.0,
+    "lower_limit": 249.5,
+    "alpha": 0.01,
+    "minimum_actionable_shift": 0.1,
+    "maximum_screening_shift": 1.0,
+    "protocol_spread_tolerance": 0.5,
+    "policy_title": "Illustrative public demo policy v1",
+    "policy_notes": "Values require deterministic validation and user confirmation."
+  },
+  "unresolved_fields": [],
+  "assumptions": [
+    {
+      "text": "Policy values are illustrative for the built-in public scenario.",
+      "source": "builtin_profile"
+    }
+  ]
+}

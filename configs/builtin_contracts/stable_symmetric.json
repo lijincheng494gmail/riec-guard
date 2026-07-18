@@ -1,0 +1,12 @@
+{
+  "scenario_id": "stable_symmetric",
+  "status": "placeholder_for_TASK_035_to_TASK_040",
+  "nominal_quantity": 250.0,
+  "unit": "mL",
+  "lower_limit": 249.5,
+  "alpha": 0.01,
+  "deployment_group_column": "group_id",
+  "time_column": "time_index",
+  "stream_column": "stream_id",
+  "minimum_actionable_shift": 0.1
+}

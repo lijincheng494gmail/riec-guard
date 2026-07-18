@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "riec_guard_claim_audit",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "claims",
+      "overall_status",
+      "export_recommendation"
+    ],
+    "properties": {
+      "claims": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "claim_id",
+            "classification",
+            "reason_code",
+            "evidence_ids",
+            "required_qualifier",
+            "replacement_text"
+          ],
+          "properties": {
+            "claim_id": {
+              "type": "string"
+            },
+            "classification": {
+              "enum": [
+                "supported",
+                "conditional",
+                "unsupported",
+                "overstated",
+                "prohibited"
+              ]
+            },
+            "reason_code": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required_qualifier": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "replacement_text": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      "overall_status": {
+        "enum": [
+          "pass",
+          "pass_with_required_edits",
+          "block"
+        ]
+      },
+      "export_recommendation": {
+        "type": "boolean"
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "riec_guard_report_draft",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "title",
+      "sections",
+      "claim_map",
+      "numeric_bindings"
+    ],
+    "properties": {
+      "title": {
+        "type": "string"
+      },
+      "sections": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "section_id",
+            "heading",
+            "paragraphs"
+          ],
+          "properties": {
+            "section_id": {
+              "type": "string"
+            },
+            "heading": {
+              "type": "string"
+            },
+            "paragraphs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "paragraph_id",
+                  "text_template",
+                  "claim_ids",
+                  "evidence_ids"
+                ],
+                "properties": {
+                  "paragraph_id": {
+                    "type": "string"
+                  },
+                  "text_template": {
+                    "type": "string"
+                  },
+                  "claim_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "claim_map": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "claim_id",
+            "claim_text_template",
+            "evidence_ids",
+            "conditional"
+          ],
+          "properties": {
+            "claim_id": {
+              "type": "string"
+            },
+            "claim_text_template": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "conditional": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "numeric_bindings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "placeholder",
+            "evidence_id",
+            "json_pointer",
+            "format_spec"
+          ],
+          "properties": {
+            "placeholder": {
+              "type": "string"
+            },
+            "evidence_id": {
+              "type": "string"
+            },
+            "json_pointer": {
+              "type": "string"
+            },
+            "format_spec": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

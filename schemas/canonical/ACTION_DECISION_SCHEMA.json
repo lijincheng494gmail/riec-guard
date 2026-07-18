@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/action-decision.schema.json",
+  "title": "RIEC Guard Action Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "contract_id",
+    "state",
+    "reason_codes",
+    "safe_headroom",
+    "pilot_reference",
+    "gates",
+    "conflict",
+    "evidence_ids",
+    "claim_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[A-F0-9]{12}$"
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^AC-[A-F0-9]{12}$"
+    },
+    "state": {
+      "enum": [
+        "invalid_contract",
+        "insufficient_evidence",
+        "no_actionable_headroom",
+        "diagnose_process_first",
+        "pilot_only_conservative",
+        "pilot_range_supported"
+      ]
+    },
+    "reason_codes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+      }
+    },
+    "safe_headroom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "basis",
+        "eligible_protocol_ids"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "basis": {
+          "enum": [
+            "bootstrap_lower_bounds",
+            "point_estimates_without_bound",
+            "none"
+          ]
+        },
+        "eligible_protocol_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "H1_group_empirical_quantile",
+              "H2_gaussian_residual_tail",
+              "H3_student_t_residual_tail"
+            ]
+          }
+        }
+      }
+    },
+    "pilot_reference": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "unit",
+        "rounding_mode",
+        "screening_only"
+      ],
+      "properties": {
+        "lower": {
+          "type": "number",
+          "minimum": 0
+        },
+        "upper": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "rounding_mode": {
+          "const": "down_to_measurement_resolution"
+        },
+        "screening_only": {
+          "const": true
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_valid",
+        "evidence_sufficient",
+        "ordered_stability",
+        "zero_headroom_block"
+      ],
+      "properties": {
+        "contract_valid": {
+          "type": "boolean"
+        },
+        "evidence_sufficient": {
+          "type": "boolean"
+        },
+        "ordered_stability": {
+          "enum": [
+            "pass",
+            "material_warning",
+            "ineligible"
+          ]
+        },
+        "zero_headroom_block": {
+          "type": "boolean"
+        }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_protocol_conflict",
+        "near_tie",
+        "protocol_spread",
+        "spread_tolerance"
+      ],
+      "properties": {
+        "material_protocol_conflict": {
+          "type": "boolean"
+        },
+        "near_tie": {
+          "type": "boolean"
+        },
+        "protocol_spread": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "spread_tolerance": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+      }
+    },
+    "claim_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "conditional",
+        "prohibited"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "conditional": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "prohibited": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "pilot_only_conservative",
+              "pilot_range_supported"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "pilot_reference": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "pilot_reference"
+        ]
+      },
+      "else": {
+        "properties": {
+          "pilot_reference": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

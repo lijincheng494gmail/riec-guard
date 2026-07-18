@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "fill-structural-v1",
+  "baseline_candidate_id": "M0",
+  "loss": "squared_error",
+  "grouped_split": "leave_one_deployment_group_out",
+  "primary_aggregation": "row_weighted",
+  "c": 1.0,
+  "near_tie": {
+    "abs_tol": 1e-06,
+    "rel_tol": 1e-08
+  },
+  "candidates": [
+    {
+      "id": "M0",
+      "label": "intercept",
+      "features": [
+        "intercept"
+      ]
+    },
+    {
+      "id": "M1",
+      "label": "product",
+      "features": [
+        "product"
+      ]
+    },
+    {
+      "id": "M2",
+      "label": "product + stream",
+      "features": [
+        "product",
+        "stream"
+      ]
+    },
+    {
+      "id": "M3",
+      "label": "product + shift",
+      "features": [
+        "product",
+        "shift"
+      ]
+    },
+    {
+      "id": "M4",
+      "label": "product + stream + shift",
+      "features": [
+        "product",
+        "stream",
+        "shift"
+      ]
+    },
+    {
+      "id": "M5",
+      "label": "product + time",
+      "features": [
+        "product",
+        "time"
+      ]
+    },
+    {
+      "id": "M6",
+      "label": "product + stream + shift + time",
+      "features": [
+        "product",
+        "stream",
+        "shift",
+        "time"
+      ]
+    }
+  ],
+  "status": "frozen_for_implementation"
+}

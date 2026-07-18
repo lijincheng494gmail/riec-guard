@@ -1,0 +1,85 @@
+{
+  "phase": "D",
+  "architecture_version": "1.0.0",
+  "canonical_artifact_schemas": [
+    {
+      "file": "AUDIT_CONTRACT_SCHEMA.json",
+      "example": "examples/audit_contract.example.json",
+      "purpose": "Confirmed analysis contract and evidence boundary"
+    },
+    {
+      "file": "DATASET_PROFILE_SCHEMA.json",
+      "example": "examples/dataset_profile.example.json",
+      "purpose": "Redacted deterministic source profile"
+    },
+    {
+      "file": "CANDIDATE_REGISTRY_SCHEMA.json",
+      "example": "examples/candidate_registry.example.json",
+      "purpose": "Finite frozen predictive candidate library"
+    },
+    {
+      "file": "RIEC_SELECTION_SCHEMA.json",
+      "example": "examples/riec_selection.example.json",
+      "purpose": "Candidate ledger, selection, near ties and switchpoints"
+    },
+    {
+      "file": "PROTOCOL_RESULT_SCHEMA.json",
+      "example": "examples/protocol_results.example.json",
+      "purpose": "Typed D0/H1/H2/H3/U1/G1/G2 results"
+    },
+    {
+      "file": "ACTION_DECISION_SCHEMA.json",
+      "example": "examples/action_decision.example.json",
+      "purpose": "Mutually exclusive action state and bounded pilot reference"
+    },
+    {
+      "file": "EVIDENCE_LEDGER_SCHEMA.json",
+      "example": "examples/evidence_ledger.example.json",
+      "purpose": "Immutable evidence items and provenance graph"
+    },
+    {
+      "file": "REPORT_DRAFT_SCHEMA.json",
+      "example": "examples/report_draft.example.json",
+      "purpose": "Evidence-linked report templates and numeric bindings"
+    },
+    {
+      "file": "CLAIM_AUDIT_SCHEMA.json",
+      "example": "examples/claim_audit.example.json",
+      "purpose": "Deterministic+GPT claim audit and export decision"
+    },
+    {
+      "file": "RUN_MANIFEST_SCHEMA.json",
+      "example": "examples/run_manifest.example.json",
+      "purpose": "End-to-end run, model, environment, privacy and artifact provenance"
+    },
+    {
+      "file": "ERROR_ENVELOPE_SCHEMA.json",
+      "example": "examples/error_envelope.example.json",
+      "purpose": "Structured user-safe failures"
+    }
+  ],
+  "model_facing_projection_schemas": [
+    {
+      "file": "GPT_AUDIT_CONTRACT_DRAFT_SCHEMA.json",
+      "example": "examples/gpt_audit_contract_draft.example.json",
+      "promotes_to": "AUDIT_CONTRACT_SCHEMA.json"
+    },
+    {
+      "file": "GPT_REPORT_DRAFT_SCHEMA.json",
+      "example": "examples/gpt_report_draft.example.json",
+      "promotes_to": "REPORT_DRAFT_SCHEMA.json"
+    },
+    {
+      "file": "GPT_CLAIM_AUDIT_SCHEMA.json",
+      "example": "examples/gpt_claim_audit.example.json",
+      "promotes_to": "CLAIM_AUDIT_SCHEMA.json"
+    }
+  ],
+  "tool_catalog": "GPT56_READ_ONLY_TOOL_CATALOG.json",
+  "validator": "validation/validate_phase_d_schemas.py",
+  "notes": [
+    "Canonical schemas are authoritative for persisted audit artifacts.",
+    "Model-facing projections are intentionally smaller and require deterministic promotion and validation.",
+    "Live OpenAI API acceptance of projection schemas remains a Phase E implementation smoke test."
+  ]
+}

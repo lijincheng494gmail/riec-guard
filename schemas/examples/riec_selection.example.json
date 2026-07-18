@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "RUN-F0DE9EA43245",
+  "registry_id": "fill-structural-candidates.v1",
+  "baseline_candidate_id": "M0_intercept",
+  "risk_aggregation": "row_weighted_grouped_mse",
+  "c": 1.0,
+  "candidate_ledger": [
+    {
+      "candidate_id": "M0_intercept",
+      "status": "ok",
+      "parameter_count": 1,
+      "bic_eff": 1680.0,
+      "grouped_risk": 1.9,
+      "group_balanced_risk": 1.88,
+      "xpe": 0.0,
+      "c_score": 1680.0,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M1_product",
+      "status": "ok",
+      "parameter_count": 2,
+      "bic_eff": 1550.0,
+      "grouped_risk": 1.52,
+      "group_balanced_risk": 1.5,
+      "xpe": 0.2,
+      "c_score": 1549.8,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M2_product_stream",
+      "status": "ok",
+      "parameter_count": 5,
+      "bic_eff": 1420.4,
+      "grouped_risk": 1.12,
+      "group_balanced_risk": 1.15,
+      "xpe": 0.41,
+      "c_score": 1420.0,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M3_product_shift",
+      "status": "ok",
+      "parameter_count": 4,
+      "bic_eff": 1490.0,
+      "grouped_risk": 1.34,
+      "group_balanced_risk": 1.31,
+      "xpe": 0.29,
+      "c_score": 1489.71,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M4_product_stream_shift",
+      "status": "ok",
+      "parameter_count": 7,
+      "bic_eff": 1419.85,
+      "grouped_risk": 1.11,
+      "group_balanced_risk": 1.14,
+      "xpe": 0.4,
+      "c_score": 1420.0000004,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M5_product_time",
+      "status": "ok",
+      "parameter_count": 3,
+      "bic_eff": 1510.0,
+      "grouped_risk": 1.39,
+      "group_balanced_risk": 1.37,
+      "xpe": 0.27,
+      "c_score": 1509.73,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    },
+    {
+      "candidate_id": "M6_product_stream_shift_time",
+      "status": "ok",
+      "parameter_count": 8,
+      "bic_eff": 1433.0,
+      "grouped_risk": 1.13,
+      "group_balanced_risk": 1.16,
+      "xpe": 0.39,
+      "c_score": 1432.61,
+      "n_rows": 600,
+      "n_groups": 12,
+      "failure_code": null,
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C"
+      ]
+    }
+  ],
+  "raw_numeric_winner": "M2_product_stream",
+  "runner_up": "M4_product_stream_shift",
+  "score_gap": 4e-07,
+  "decision_status": "near_tie",
+  "equivalence_set": [
+    "M2_product_stream",
+    "M4_product_stream_shift"
+  ],
+  "pairwise_switches": [
+    {
+      "candidate_a": "M2_product_stream",
+      "candidate_b": "M4_product_stream_shift",
+      "switch_c": 1.18,
+      "identifiable": true,
+      "interpretation": "M2 has the lower score below c=1.18; M4 has the lower score above it under the stored affine score decomposition.",
+      "evidence_ids": [
+        "EV-BOUNDARY-F8EF625144BB"
+      ]
+    }
+  ],
+  "evidence_ids": [
+    "EV-RIEC-F242236CE17C",
+    "EV-BOUNDARY-F8EF625144BB"
+  ]
+}

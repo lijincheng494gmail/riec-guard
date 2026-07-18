@@ -1,0 +1,6 @@
+
+quantity,product,stream_id,shift,group_id,time_index
+250.2,A,S1,day,G01,1
+250.1,A,S1,day,G01,2
+249.9,A,S1,day,G02,3
+250.3,A,S1,day,G02,4

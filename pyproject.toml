@@ -1,0 +1,45 @@
+
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riec-guard"
+version = "0.0.0"
+description = "Auditable decisions from conflicting evidence"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = {file = "LICENSE"}
+authors = [{name = "RIEC Guard contributors"}]
+dependencies = []
+
+[project.scripts]
+riec-guard = "riec_guard.cli:main"
+
+[project.optional-dependencies]
+# TASK-002 resolves and pins exact versions in the lockfile.
+app = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "scikit-learn",
+  "statsmodels",
+  "pydantic",
+  "jsonschema",
+  "openai",
+  "streamlit",
+  "jinja2",
+  "plotly",
+]
+dev = ["pytest", "hypothesis", "ruff", "mypy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

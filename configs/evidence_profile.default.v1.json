@@ -1,0 +1,15 @@
+{
+  "profile_id": "default-fill-v1",
+  "min_rows": 80,
+  "min_groups_exploratory": 4,
+  "min_groups_action": 8,
+  "min_expected_tail_count": 5,
+  "min_ordered_points_per_stream": 20,
+  "bootstrap_replicates": 200,
+  "bootstrap_seed": 20260718,
+  "bootstrap_min_success": 100,
+  "bootstrap_max_failed_fraction": 0.1,
+  "bootstrap_one_sided_confidence": 0.9,
+  "max_exact_logo_groups": 200,
+  "status": "frozen_for_implementation"
+}

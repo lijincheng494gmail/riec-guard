@@ -1,0 +1,24 @@
+
+cff-version: 1.2.0
+message: "If you use RIEC Guard, cite the software and the RIEC-L1 paper."
+title: "RIEC Guard"
+type: software
+version: 0.0.0-seed
+date-released: 2026-07-18
+authors:
+  - family-names: Li
+    given-names: Jincheng
+license: MIT
+preferred-citation:
+  type: article
+  title: "RIEC-L1: An evidence-led conflict-resolution layer for finite candidate libraries in engineering data"
+  authors:
+    - family-names: Li
+      given-names: Jincheng
+    - family-names: Zhao
+      given-names: Yuchen
+    - family-names: Li
+      given-names: Xifeng
+  journal: Array
+  year: 2026
+  doi: 10.1016/j.array.2026.101097

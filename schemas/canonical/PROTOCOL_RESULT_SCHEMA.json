@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/protocol-results.schema.json",
+  "title": "RIEC Guard Protocol Results",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "contract_id",
+    "target_scope",
+    "results"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[A-F0-9]{12}$"
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^AC-[A-F0-9]{12}$"
+    },
+    "target_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_id"
+      ],
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "stream_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/result"
+      }
+    }
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "maxLength": 1000
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "number"
+              }
+            }
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "material",
+            "blocking"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_id",
+        "protocol_version",
+        "role",
+        "status",
+        "point_estimate",
+        "uncertainty",
+        "metrics",
+        "warnings",
+        "evidence_ids",
+        "runtime_ms"
+      ],
+      "properties": {
+        "protocol_id": {
+          "enum": [
+            "D0_mean_diagnostic",
+            "H1_group_empirical_quantile",
+            "H2_gaussian_residual_tail",
+            "H3_student_t_residual_tail",
+            "U1_group_bootstrap_bound",
+            "G1_ordered_stability_screen",
+            "G2_evidence_sufficiency_gate"
+          ]
+        },
+        "protocol_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "role": {
+          "enum": [
+            "descriptive",
+            "headroom",
+            "uncertainty",
+            "stability_gate",
+            "evidence_gate"
+          ]
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "ineligible",
+            "warning",
+            "failed"
+          ]
+        },
+        "point_estimate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        },
+        "uncertainty": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "level",
+            "lower",
+            "upper",
+            "conditional_on_selection"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "none",
+                "one_sided_lower",
+                "two_sided_interval"
+              ]
+            },
+            "level": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            },
+            "lower": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "upper": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "conditional_on_selection": {
+              "type": "boolean"
+            }
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/metric"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/warning"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+          }
+        },
+        "runtime_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "algorithm_notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        }
+      }
+    }
+  }
+}

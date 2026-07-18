@@ -1,0 +1,116 @@
+{
+  "title": "RIEC Guard retrospective screening memo",
+  "sections": [
+    {
+      "section_id": "SEC-01",
+      "heading": "Executive screening status",
+      "paragraphs": [
+        {
+          "paragraph_id": "P-001",
+          "text_template": "The deterministic action state is pilot only—conservative [{{action_state}}; EV-ACTION-AFEDFFBAC970]. The safe retrospective screening headroom is {{safe_headroom}} and the bounded pilot reference is {{pilot_lower}} to {{pilot_upper}} [EV-ACTION-AFEDFFBAC970].",
+          "claim_ids": [
+            "CLM-001",
+            "CLM-002"
+          ],
+          "evidence_ids": [
+            "EV-ACTION-AFEDFFBAC970"
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "SEC-02",
+      "heading": "Model and protocol evidence",
+      "paragraphs": [
+        {
+          "paragraph_id": "P-002",
+          "text_template": "RIEC-L1 reported a near-tie equivalence set rather than a unique structural winner [EV-RIEC-F242236CE17C]. The Gaussian residual-tail protocol also carried a material heavy-tail diagnostic [EV-PROTOCOL-076951CE4DB2].",
+          "claim_ids": [
+            "CLM-003"
+          ],
+          "evidence_ids": [
+            "EV-RIEC-F242236CE17C",
+            "EV-PROTOCOL-076951CE4DB2"
+          ]
+        }
+      ]
+    },
+    {
+      "section_id": "SEC-03",
+      "heading": "Claim boundary",
+      "paragraphs": [
+        {
+          "paragraph_id": "P-003",
+          "text_template": "This is a retrospective screening result, not a production setpoint, compliance certification, achieved-savings result, or live validation [EV-CLAIM-9460D4019B74]. Engineering review and a controlled pilot are required.",
+          "claim_ids": [
+            "CLM-004"
+          ],
+          "evidence_ids": [
+            "EV-CLAIM-9460D4019B74"
+          ]
+        }
+      ]
+    }
+  ],
+  "claim_map": [
+    {
+      "claim_id": "CLM-001",
+      "claim_text_template": "The safe retrospective screening headroom is {{safe_headroom}}.",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "conditional": true
+    },
+    {
+      "claim_id": "CLM-002",
+      "claim_text_template": "The bounded pilot reference is {{pilot_lower}} to {{pilot_upper}}.",
+      "evidence_ids": [
+        "EV-ACTION-AFEDFFBAC970"
+      ],
+      "conditional": true
+    },
+    {
+      "claim_id": "CLM-003",
+      "claim_text_template": "RIEC-L1 reported a near-tie equivalence set, and H2 carried a material heavy-tail diagnostic.",
+      "evidence_ids": [
+        "EV-RIEC-F242236CE17C",
+        "EV-PROTOCOL-076951CE4DB2"
+      ],
+      "conditional": false
+    },
+    {
+      "claim_id": "CLM-004",
+      "claim_text_template": "The result does not establish a production setpoint, compliance, achieved savings, or live validation.",
+      "evidence_ids": [
+        "EV-CLAIM-9460D4019B74"
+      ],
+      "conditional": false
+    }
+  ],
+  "numeric_bindings": [
+    {
+      "placeholder": "{{action_state}}",
+      "evidence_id": "EV-ACTION-AFEDFFBAC970",
+      "json_pointer": "/value/state",
+      "format_spec": "text"
+    },
+    {
+      "placeholder": "{{safe_headroom}}",
+      "evidence_id": "EV-ACTION-AFEDFFBAC970",
+      "json_pointer": "/value/safe_headroom",
+      "format_spec": ".2f mL"
+    },
+    {
+      "placeholder": "{{pilot_lower}}",
+      "evidence_id": "EV-ACTION-AFEDFFBAC970",
+      "json_pointer": "/value/pilot_lower",
+      "format_spec": ".2f mL"
+    },
+    {
+      "placeholder": "{{pilot_upper}}",
+      "evidence_id": "EV-ACTION-AFEDFFBAC970",
+      "json_pointer": "/value/pilot_upper",
+      "format_spec": ".2f mL"
+    }
+  ]
+}

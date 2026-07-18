@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "AC-84E73F9B8FB0",
+  "created_at": "2026-07-18T08:00:00Z",
+  "compiler": {
+    "mode": "versioned_builtin",
+    "model": null,
+    "structured_output_schema_version": "1.0.0",
+    "fallback_used": false,
+    "request_id": null
+  },
+  "source": {
+    "mode": "builtin_synthetic",
+    "dataset_id": "heavy_tail_particulate.v1",
+    "dataset_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+    "filename_display": "heavy_tail_particulate.csv",
+    "row_count": 600,
+    "column_count": 7,
+    "encoding": "internal",
+    "synthetic_mechanism": "heavy_tail_particulate"
+  },
+  "column_mapping": {
+    "quantity": {
+      "column": "quantity_ml",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "product": {
+      "column": "product_id",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "deployment_group": {
+      "column": "batch_id",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "time": {
+      "column": "timestamp",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "stream": {
+      "column": "stream_id",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "shift": {
+      "column": "shift_id",
+      "confidence": 1.0,
+      "confirmed": true
+    }
+  },
+  "measurement": {
+    "quantity_semantics": "volume",
+    "unit": "mL",
+    "measurement_resolution": 0.01,
+    "conversion": {
+      "required": false,
+      "method": "none",
+      "fixed_density": null,
+      "formula_note": null
+    }
+  },
+  "grouping": {
+    "deployment_unit_name": "production batch",
+    "deployment_group_columns": [
+      "batch_id"
+    ],
+    "nested_context_columns": [
+      "stream_id",
+      "shift_id"
+    ],
+    "no_random_row_fallback": true
+  },
+  "ordering": {
+    "status": "confirmed",
+    "time_column": "timestamp",
+    "timezone": "UTC",
+    "within_stream_order_confirmed": true,
+    "tie_break_columns": [
+      "row_sequence"
+    ]
+  },
+  "policy": {
+    "nominal_quantity": 250.0,
+    "lower_limit": 249.5,
+    "underfill_event": "adjusted_quantity_strictly_less_than_lower_limit",
+    "alpha": 0.01,
+    "minimum_actionable_shift": 0.1,
+    "maximum_screening_shift": 1.0,
+    "protocol_spread_tolerance": 0.5,
+    "policy_source": {
+      "kind": "builtin_profile",
+      "title": "Illustrative public demo policy v1",
+      "text_sha256": "c992143effb452bcb076a775ea8652ba39a35e0a33ce38d78aa715be113175a3",
+      "user_confirmed": true
+    },
+    "notes": "Illustrative public demo values; not regulatory constants."
+  },
+  "evidence_profile": {
+    "profile_version": "1.0.0",
+    "min_rows": 80,
+    "min_groups_exploratory": 4,
+    "min_groups_action": 8,
+    "min_expected_tail_count": 5,
+    "min_ordered_points_per_stream": 20,
+    "min_ordered_coverage": 0.6,
+    "bootstrap_replicates": 200,
+    "bootstrap_lower_confidence": 0.9,
+    "bootstrap_max_failure_fraction": 0.1
+  },
+  "riec": {
+    "candidate_registry_id": "fill-structural-candidates.v1",
+    "baseline_candidate_id": "M0_intercept",
+    "risk_aggregation": "row_weighted_grouped_mse",
+    "group_balanced_diagnostic": true,
+    "c": 1.0,
+    "near_tie_abs_tol": 1e-06,
+    "near_tie_rel_tol": 1e-08,
+    "splitter": "leave_one_deployment_group_out",
+    "max_exact_logo_groups": 200
+  },
+  "privacy": {
+    "classification": "public_synthetic",
+    "raw_rows_to_gpt": false,
+    "direct_identifiers_to_gpt": false,
+    "storage_mode": "ephemeral_public_session",
+    "redacted_summary_allowed": true
+  },
+  "unresolved_fields": [],
+  "assumptions": [
+    {
+      "assumption_id": "ASM-001",
+      "text": "The public scenario policy is illustrative and user-confirmed for demonstration.",
+      "source": "builtin_profile",
+      "user_confirmed": true
+    }
+  ],
+  "confirmation": {
+    "status": "confirmed",
+    "confirmed_fields": [
+      "column_mapping.quantity.column",
+      "column_mapping.deployment_group.column",
+      "measurement.unit",
+      "grouping.deployment_group_columns",
+      "ordering.status",
+      "policy.nominal_quantity",
+      "policy.lower_limit",
+      "policy.alpha",
+      "policy.minimum_actionable_shift",
+      "policy.maximum_screening_shift",
+      "policy.protocol_spread_tolerance",
+      "riec.c",
+      "privacy.classification"
+    ],
+    "confirmed_at": "2026-07-18T08:01:00Z",
+    "confirmed_by": "versioned_builtin"
+  }
+}

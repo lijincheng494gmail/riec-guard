@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://riec-guard.local/schemas/claim-audit.schema.json",
+  "title": "RIEC Guard Claim Audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "report_draft_sha256",
+    "deterministic_precheck",
+    "claims",
+    "overall_status",
+    "export_allowed"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[A-F0-9]{12}$"
+    },
+    "report_draft_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "deterministic_precheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "uncited_numbers",
+        "unknown_evidence_ids",
+        "placeholder_errors",
+        "prohibited_phrases"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "uncited_numbers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "unknown_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "placeholder_errors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "prohibited_phrases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "text",
+          "materiality",
+          "classification",
+          "reason_code",
+          "evidence_ids",
+          "required_qualifier",
+          "replacement_text"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^CLM-[0-9]{3}$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          },
+          "materiality": {
+            "enum": [
+              "headline",
+              "material",
+              "supporting"
+            ]
+          },
+          "classification": {
+            "enum": [
+              "supported",
+              "conditional",
+              "unsupported",
+              "overstated",
+              "prohibited"
+            ]
+          },
+          "reason_code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^EV-[A-Z0-9_]{2,16}-[A-F0-9]{12}$"
+            }
+          },
+          "required_qualifier": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "replacement_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 3000
+          }
+        }
+      }
+    },
+    "overall_status": {
+      "enum": [
+        "pass",
+        "pass_with_required_edits",
+        "block"
+      ]
+    },
+    "export_allowed": {
+      "type": "boolean"
+    },
+    "auditor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "model",
+        "request_id",
+        "fallback_used"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "gpt_structured_output",
+            "deterministic_only"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "request_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "fallback_used": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "overall_status": {
+            "const": "block"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "export_allowed": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "export_allowed": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "deterministic_precheck": {
+            "properties": {
+              "passed": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

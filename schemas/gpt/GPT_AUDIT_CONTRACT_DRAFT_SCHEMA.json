@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "riec_guard_contract_draft",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "column_mapping",
+      "measurement",
+      "grouping",
+      "ordering",
+      "policy",
+      "unresolved_fields",
+      "assumptions"
+    ],
+    "properties": {
+      "column_mapping": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "semantic_role",
+            "column",
+            "confidence",
+            "confirmed",
+            "reasons"
+          ],
+          "properties": {
+            "semantic_role": {
+              "enum": [
+                "quantity",
+                "product",
+                "deployment_group",
+                "time",
+                "stream",
+                "shift",
+                "weight",
+                "density",
+                "tare"
+              ]
+            },
+            "column": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "confirmed": {
+              "const": false
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "measurement": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "quantity_semantics",
+          "unit",
+          "measurement_resolution",
+          "conversion_required",
+          "conversion_method",
+          "fixed_density",
+          "formula_note"
+        ],
+        "properties": {
+          "quantity_semantics": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              null,
+              "net_content",
+              "gross_weight",
+              "net_weight",
+              "volume",
+              "mass",
+              "other"
+            ]
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "measurement_resolution": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "conversion_required": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "conversion_method": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              null,
+              "none",
+              "fixed_density",
+              "row_density",
+              "gross_minus_tare",
+              "custom"
+            ]
+          },
+          "fixed_density": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "formula_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "grouping": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deployment_unit_name",
+          "deployment_group_columns",
+          "nested_context_columns"
+        ],
+        "properties": {
+          "deployment_unit_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deployment_group_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "nested_context_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ordering": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "time_column",
+          "timezone",
+          "within_stream_order_confirmed",
+          "tie_break_columns"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "confirmed",
+              "unavailable",
+              "ambiguous"
+            ]
+          },
+          "time_column": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timezone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "within_stream_order_confirmed": {
+            "type": "boolean"
+          },
+          "tie_break_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "policy": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nominal_quantity",
+          "lower_limit",
+          "alpha",
+          "minimum_actionable_shift",
+          "maximum_screening_shift",
+          "protocol_spread_tolerance",
+          "policy_title",
+          "policy_notes"
+        ],
+        "properties": {
+          "nominal_quantity": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "lower_limit": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "alpha": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "minimum_actionable_shift": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "maximum_screening_shift": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "protocol_spread_tolerance": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "policy_title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "policy_notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "unresolved_fields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "field_path",
+            "severity",
+            "question"
+          ],
+          "properties": {
+            "field_path": {
+              "type": "string"
+            },
+            "severity": {
+              "enum": [
+                "blocking",
+                "warning"
+              ]
+            },
+            "question": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "text",
+            "source"
+          ],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "source": {
+              "enum": [
+                "user",
+                "builtin_profile",
+                "gpt_inference",
+                "deterministic_inference"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

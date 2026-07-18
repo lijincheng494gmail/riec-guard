@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_id": "heavy_tail_particulate.v1",
+  "dataset_sha256": "08cb3928ca105cf30020c987dd1f5841021193299b5c91666d1024c88b8562de",
+  "row_count": 600,
+  "column_profiles": [
+    {
+      "name": "quantity_ml",
+      "dtype": "number",
+      "missing_fraction": 0.0,
+      "unique_count": 598,
+      "safe_examples": [
+        250.73,
+        251.02,
+        249.91
+      ],
+      "numeric_summary": {
+        "min": 248.7,
+        "median": 250.76,
+        "max": 253.9
+      }
+    },
+    {
+      "name": "product_id",
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "unique_count": 2,
+      "safe_examples": [
+        "product_A",
+        "product_B"
+      ],
+      "numeric_summary": null
+    },
+    {
+      "name": "batch_id",
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "unique_count": 12,
+      "safe_examples": [
+        "batch_01",
+        "batch_02"
+      ],
+      "numeric_summary": null
+    },
+    {
+      "name": "timestamp",
+      "dtype": "datetime",
+      "missing_fraction": 0.0,
+      "unique_count": 600,
+      "safe_examples": [],
+      "numeric_summary": null
+    },
+    {
+      "name": "stream_id",
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "unique_count": 4,
+      "safe_examples": [
+        "stream_1",
+        "stream_2"
+      ],
+      "numeric_summary": null
+    },
+    {
+      "name": "shift_id",
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "unique_count": 2,
+      "safe_examples": [
+        "day",
+        "night"
+      ],
+      "numeric_summary": null
+    },
+    {
+      "name": "row_sequence",
+      "dtype": "integer",
+      "missing_fraction": 0.0,
+      "unique_count": 600,
+      "safe_examples": [
+        1,
+        2,
+        3
+      ],
+      "numeric_summary": {
+        "min": 1,
+        "median": 300.5,
+        "max": 600
+      }
+    }
+  ],
+  "candidate_semantic_mappings": [
+    {
+      "semantic_role": "quantity",
+      "column": "quantity_ml",
+      "confidence": 0.99,
+      "reasons": [
+        "numeric",
+        "name contains quantity"
+      ]
+    },
+    {
+      "semantic_role": "product",
+      "column": "product_id",
+      "confidence": 0.99,
+      "reasons": [
+        "low-cardinality categorical",
+        "name contains product"
+      ]
+    },
+    {
+      "semantic_role": "deployment_group",
+      "column": "batch_id",
+      "confidence": 0.98,
+      "reasons": [
+        "batch identifier",
+        "12 repeated groups"
+      ]
+    },
+    {
+      "semantic_role": "time",
+      "column": "timestamp",
+      "confidence": 0.99,
+      "reasons": [
+        "datetime parse rate 1.0"
+      ]
+    },
+    {
+      "semantic_role": "stream",
+      "column": "stream_id",
+      "confidence": 0.99,
+      "reasons": [
+        "low-cardinality process stream"
+      ]
+    },
+    {
+      "semantic_role": "shift",
+      "column": "shift_id",
+      "confidence": 0.99,
+      "reasons": [
+        "declared shift field"
+      ]
+    }
+  ],
+  "privacy_redaction": {
+    "raw_rows_included": false,
+    "direct_identifiers_included": false,
+    "high_cardinality_values_included": false
+  }
+}

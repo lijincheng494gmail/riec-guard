@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "error_id": "ERR-12AB47DE0AFF",
+  "stage": "riec",
+  "error_class": "scale_limit",
+  "code": "SCALE_LIMIT_EXACT_LOGO",
+  "message": "Exact leave-one-deployment-group-out evaluation exceeds the confirmed public-MVP group limit.",
+  "recoverable": true,
+  "user_action": "Use a smaller public fixture or run an explicitly designed future large-group method; random-row fallback is not permitted.",
+  "safe_details": {
+    "observed_groups": 245,
+    "maximum_groups": 200
+  },
+  "cause_chain": []
+}
