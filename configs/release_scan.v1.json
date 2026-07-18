@@ -1,0 +1,329 @@
+{
+  "schema_id": "riec-guard.public-release-scan-policy",
+  "schema_version": "1.0",
+  "config_version": "1.0.0",
+  "excluded_generated_directories": [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "riec_guard.egg-info"
+  ],
+  "forbidden_path_segments": [
+    "private",
+    "private_local_reference",
+    "private_dairy_anchor",
+    "original_phase_packages",
+    "original_project_archives",
+    "frozen_reference_specs",
+    "official_rules_reference",
+    "historical_archives",
+    "submission_and_evidence_pack",
+    "submission_package",
+    "reviewer_material",
+    "publisher_material",
+    "manuscripts"
+  ],
+  "forbidden_filename_patterns": [
+    {
+      "code": "FORBIDDEN_FILENAME",
+      "description": "filename indicates private, historical, reviewer, submission, manuscript, or publisher material",
+      "pattern": "(?:^|[._ -])(?:private|dairy|historical|reviewer|submission|manuscript|publisher|cover[._ -]?letter)(?:$|[._ -])",
+      "case_sensitive": false
+    }
+  ],
+  "forbidden_extensions": [
+    ".zip",
+    ".7z",
+    ".rar",
+    ".tar",
+    ".tar.gz",
+    ".tgz",
+    ".gz",
+    ".bz2",
+    ".xz",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".odt",
+    ".ppt",
+    ".pptx",
+    ".xls",
+    ".xlsx",
+    ".ods",
+    ".exe",
+    ".dll",
+    ".dylib",
+    ".so",
+    ".db",
+    ".sqlite",
+    ".sqlite3",
+    ".pyc",
+    ".pyo",
+    ".class"
+  ],
+  "binary_signatures": [
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a ZIP archive signature",
+      "hex": "504b0304",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a ZIP end-of-central-directory signature",
+      "hex": "504b0506",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a gzip archive signature",
+      "hex": "1f8b08",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a 7z archive signature",
+      "hex": "377abcaf271c",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a RAR archive signature",
+      "hex": "526172211a07",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a bzip2 archive signature",
+      "hex": "425a68",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains an xz archive signature",
+      "hex": "fd377a585a00",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "ARCHIVE_MAGIC",
+      "description": "file contains a tar archive signature",
+      "hex": "7573746172",
+      "offsets": [257],
+      "search_within_bytes": 0
+    },
+    {
+      "code": "DOCUMENT_MAGIC",
+      "description": "file contains a PDF document signature",
+      "hex": "255044462d",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "DOCUMENT_MAGIC",
+      "description": "file contains an OLE Office document signature",
+      "hex": "d0cf11e0a1b11ae1",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "DATABASE_MAGIC",
+      "description": "file contains a SQLite database signature",
+      "hex": "53514c69746520666f726d6174203300",
+      "offsets": [0],
+      "search_within_bytes": 4096
+    },
+    {
+      "code": "EXECUTABLE_MAGIC",
+      "description": "file contains a Windows executable signature",
+      "hex": "4d5a",
+      "offsets": [0],
+      "search_within_bytes": 0
+    },
+    {
+      "code": "EXECUTABLE_MAGIC",
+      "description": "file contains an ELF executable signature",
+      "hex": "7f454c46",
+      "offsets": [0],
+      "search_within_bytes": 0
+    },
+    {
+      "code": "EXECUTABLE_MAGIC",
+      "description": "file contains a Mach-O executable signature",
+      "hex": "cffaedfe",
+      "offsets": [0],
+      "search_within_bytes": 0
+    }
+  ],
+  "text_file_suffixes": [
+    ".cff",
+    ".cfg",
+    ".csv",
+    ".env",
+    ".example",
+    ".gitignore",
+    ".in",
+    ".ini",
+    ".json",
+    ".lock",
+    ".md",
+    ".py",
+    ".rst",
+    ".sh",
+    ".toml",
+    ".tsv",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "text_file_names": [
+    "LICENSE",
+    "Makefile",
+    ".gitignore",
+    ".python-version",
+    ".env.example"
+  ],
+  "max_file_size_bytes": 10485760,
+  "secret_pattern_rules": [
+    {
+      "code": "SECRET_OPENAI_KEY",
+      "description": "file contains an OpenAI-style credential",
+      "pattern": "sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}",
+      "case_sensitive": true,
+      "value_group": null,
+      "allow_placeholders": false
+    },
+    {
+      "code": "SECRET_AWS_ACCESS_KEY",
+      "description": "file contains an AWS access-key identifier",
+      "pattern": "(?:AKIA|ASIA)[0-9A-Z]{16}",
+      "case_sensitive": true,
+      "value_group": null,
+      "allow_placeholders": false
+    },
+    {
+      "code": "SECRET_GITHUB_TOKEN",
+      "description": "file contains a GitHub-style access token",
+      "pattern": "(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})",
+      "case_sensitive": true,
+      "value_group": null,
+      "allow_placeholders": false
+    },
+    {
+      "code": "SECRET_PRIVATE_KEY",
+      "description": "file contains a private-key header",
+      "pattern": "-----BEGIN[ ](?:RSA[ ]|EC[ ]|OPENSSH[ ]|DSA[ ]|PGP[ ])?PRIVATE[ ]KEY-----",
+      "case_sensitive": true,
+      "value_group": null,
+      "allow_placeholders": false
+    },
+    {
+      "code": "SECRET_API_KEY_ASSIGNMENT",
+      "description": "file contains a non-placeholder API-key assignment",
+      "pattern": "^[ \\t]*(?:export[ \\t]+)?[\\\"']?(?:[A-Z][A-Z0-9_]*_)?(?:API_KEY|APIKEY)[\\\"']?[ \\t]*(?:=|:)[ \\t]*[\\\"']?([^\\\"'#,\\r\\n]*)",
+      "case_sensitive": false,
+      "value_group": 1,
+      "allow_placeholders": true
+    },
+    {
+      "code": "SECRET_TOKEN_ASSIGNMENT",
+      "description": "file contains a non-placeholder bearer or access-token assignment",
+      "pattern": "^[ \\t]*(?:export[ \\t]+)?[\\\"']?(?:ACCESS_TOKEN|AUTH_TOKEN|BEARER_TOKEN|TOKEN)[\\\"']?[ \\t]*(?:=|:)[ \\t]*[\\\"']?([^\\\"'#,\\r\\n]*)",
+      "case_sensitive": false,
+      "value_group": 1,
+      "allow_placeholders": true
+    },
+    {
+      "code": "SECRET_BEARER_VALUE",
+      "description": "file contains a bearer credential value",
+      "pattern": "\\bBearer[ \\t]+([A-Za-z0-9._~-]{16,})",
+      "case_sensitive": false,
+      "value_group": 1,
+      "allow_placeholders": false
+    }
+  ],
+  "absolute_local_path_rules": [
+    {
+      "code": "ABSOLUTE_MACOS_PATH",
+      "description": "file contains a macOS user-home path",
+      "pattern": "(?<![A-Za-z0-9])/(?:Users)/[A-Za-z0-9._-]+(?:/[^\\s\\\"'<>]*)?",
+      "case_sensitive": true
+    },
+    {
+      "code": "ABSOLUTE_LINUX_PATH",
+      "description": "file contains a Linux user-home path",
+      "pattern": "(?<![A-Za-z0-9])/(?:home)/[A-Za-z0-9._-]+(?:/[^\\s\\\"'<>]*)?",
+      "case_sensitive": true
+    },
+    {
+      "code": "ABSOLUTE_PRIVATE_PATH",
+      "description": "file contains a sensitive local private path",
+      "pattern": "(?<![A-Za-z0-9])/(?:private)/[^\\s\\\"'<>]+",
+      "case_sensitive": true
+    },
+    {
+      "code": "ABSOLUTE_TEMP_PATH",
+      "description": "file contains an absolute host temporary path",
+      "pattern": "(?<![A-Za-z0-9])/(?:tmp|var/tmp|var/folders)/[^\\s\\\"'<>]+",
+      "case_sensitive": true
+    },
+    {
+      "code": "ABSOLUTE_WINDOWS_DRIVE_PATH",
+      "description": "file contains a Windows drive path",
+      "pattern": "(?<![A-Za-z0-9])[A-Z]:\\\\[^\\s\\\"'<>]+",
+      "case_sensitive": false
+    },
+    {
+      "code": "ABSOLUTE_UNC_PATH",
+      "description": "file contains a Windows UNC path",
+      "pattern": "\\\\\\\\[A-Za-z0-9._$-]+\\\\[A-Za-z0-9._$-]+(?:\\\\[^\\s\\\"'<>]+)*",
+      "case_sensitive": false
+    }
+  ],
+  "placeholder_values": [
+    "",
+    "null",
+    "none",
+    "changeme",
+    "change-me",
+    "replace-me",
+    "placeholder",
+    "not-set"
+  ],
+  "placeholder_patterns": [
+    "\\$\\{[A-Z][A-Z0-9_]*\\}",
+    "<[^>]+>",
+    "\\{\\{[^}]+\\}\\}",
+    "(?:your|example|sample|dummy|replace|change)[-_ ].*"
+  ],
+  "known_private_sha256": [],
+  "allowlist_exceptions": [
+    {
+      "path": "tests/security/test_no_private_import_path.py",
+      "finding_codes": [
+        "FORBIDDEN_FILENAME"
+      ],
+      "reason": "The existing synthetic boundary test filename names the prohibited condition it verifies."
+    },
+    {
+      "path": "tests/security/test_upload_guard.py",
+      "finding_codes": [
+        "ABSOLUTE_MACOS_PATH",
+        "ABSOLUTE_TEMP_PATH",
+        "ABSOLUTE_WINDOWS_DRIVE_PATH",
+        "ABSOLUTE_UNC_PATH",
+        "DOCUMENT_MAGIC"
+      ],
+      "reason": "Existing synthetic upload-guard fixtures intentionally contain unsafe display-name and document-signature examples."
+    }
+  ]
+}
