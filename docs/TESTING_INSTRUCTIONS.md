@@ -55,5 +55,60 @@ all direct and transitive dependencies declared in `requirements.in`. The editab
 is installed separately with `--no-deps`, so that step neither resolves nor downloads packages.
 Commit `requirements.lock`, not any resolver cache or environment directory.
 
+## Upload guard and ephemeral runs
+
+The source layer accepts two public source kinds through the same `SourceSpec` abstraction:
+
+- a registered built-in public scenario (`built_in`), which requires no copied file; or
+- an uploaded UTF-8 CSV (`uploaded_csv`), with an optional UTF-8 BOM.
+
+Uploaded media types are `text/csv` and `application/csv`; a missing media type is validated from
+the filename and bounded content. Archive, Office/Excel, PDF, executable, database, binary/NUL,
+unknown-encoding, and non-CSV inputs are rejected. Cells are parsed and rewritten strictly as
+data—formula, macro, and shell-like text is never executed.
+
+The injectable public-demo defaults are:
+
+```text
+maximum file size: 10 MiB (10,485,760 bytes)
+maximum data rows: 100,000 (header excluded)
+maximum columns: 100
+maximum display filename length: 255 characters
+accepted uploaded data type: CSV only
+```
+
+Original filenames are display metadata only. Accepted bytes are written as
+`inputs/SRC-<generated-id>.csv`, and normalized bytes as
+`normalized/SRC-<generated-id>.csv`, under the owning generated run. A source ID is resolvable
+only with its owning run ID. Runtime rows are never written into the Git repository.
+
+Cleanup is explicit and callable: `delete_run` is idempotent, while `cleanup_expired` accepts a
+timezone-aware cutoff and active-run exclusions. Cleanup considers only validated `RUN-` children
+of the configured ephemeral root, never deletes the root itself, does not follow symlinked run
+directories, and fails closed if the configured root is redirected.
+
+Stable upload/run codes are:
+
+```text
+unsupported_file_type
+archive_upload_rejected
+upload_too_large
+too_many_rows
+too_many_columns
+malformed_csv
+unsafe_display_filename
+binary_or_nul_content
+source_not_found
+run_not_found
+storage_failure
+cleanup_failure
+```
+
+Focused TASK-004 verification:
+
+```bash
+pytest tests/security/test_upload_guard.py tests/unit/test_source_repository.py
+```
+
 The final release must document clean installation, built-in scenario execution,
 API-off fallback, API-on GPT stages, audit-bundle validation, and the public URL.
