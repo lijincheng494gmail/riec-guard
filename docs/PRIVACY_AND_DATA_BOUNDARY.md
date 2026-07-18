@@ -71,3 +71,31 @@ Deployment is blocked unless:
 - clean-environment smoke audit passes;
 - fallback labels appear correctly without an API key;
 - audit bundle checksums validate.
+
+## TASK-003 runtime settings boundary
+
+The public runtime is public-first and immutable after construction. Public mode is the
+default and does not require, discover, import, infer, or accept a private-data root. Hosted
+mode rejects any private-mode configuration attempt.
+
+Runtime artifacts use an ephemeral root outside the Git repository. If `RIEC_GUARD_EPHEMERAL_ROOT`
+is omitted, the application uses an operating-system temporary directory. If it is set, the
+configured root is normalized and rejected when it is the repository root or a repository
+descendant.
+
+When non-hosted private-local settings are explicitly constructed, the public ephemeral root
+and private data root are normalized before comparison. They must be different, non-overlapping
+roots; neither root may be an ancestor or descendant of the other.
+
+Each run creates only this generated layout:
+
+```text
+<ephemeral_root>/<RUN-ID>/inputs/
+<ephemeral_root>/<RUN-ID>/normalized/
+<ephemeral_root>/<RUN-ID>/artifacts/
+<ephemeral_root>/<RUN-ID>/telemetry/
+```
+
+`RUN-ID` and source storage names are generated internally. Original upload names remain display
+metadata only and are never used as filesystem path fragments. Public-facing validation errors may
+name the logical field or root role, but must not reveal resolved local paths.
