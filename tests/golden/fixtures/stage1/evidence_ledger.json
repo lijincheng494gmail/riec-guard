@@ -1,0 +1,100 @@
+{
+  "canonicalization": {
+    "excluded_fields": [
+      "evidence_id",
+      "created_at",
+      "content_sha256"
+    ],
+    "hash_algorithm": "sha256",
+    "id_format": "EV-<COMPONENT>-<FIRST12_UPPER_HEX>",
+    "json_encoding": "utf-8",
+    "sort_keys": true
+  },
+  "items": [
+    {
+      "component": "PROFILE",
+      "content_sha256": "e773efa4bb960d51c6103c35a15bbf162315a4f32b7cd74f346e0615acfaa964",
+      "contract_sha256": "20276b7eef907f7f44c08adb5c1b8200a65296a240ff3216e38909a99eec11bc",
+      "created_at": "2026-07-20T00:02:00Z",
+      "evidence_id": "EV-PROFILE-E773EFA4BB96",
+      "implementation_version": "task-013-stage1-golden-1.0.0",
+      "input_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+      "kind": "provenance",
+      "parent_evidence_ids": [],
+      "source_refs": [
+        {
+          "artifact_id": "normalized.csv",
+          "artifact_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+          "locator": "public synthetic normalized fixture"
+        }
+      ],
+      "statement": "The Stage 1 public synthetic dataset profile is deterministic and redacted.",
+      "status": "ok",
+      "unit": null,
+      "value": {
+        "dataset_id": "dataset-3445e18cc213d472",
+        "deployment_group_count": 8,
+        "redaction_verified": true,
+        "row_count": 80
+      }
+    },
+    {
+      "component": "CONTRACT",
+      "content_sha256": "736566ef9d6e6002dff54123963be63771628a55094f6dc4e3952c9ef782c106",
+      "contract_sha256": "20276b7eef907f7f44c08adb5c1b8200a65296a240ff3216e38909a99eec11bc",
+      "created_at": "2026-07-20T00:02:00Z",
+      "evidence_id": "EV-CONTRACT-736566EF9D6E",
+      "implementation_version": "task-013-stage1-golden-1.0.0",
+      "input_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+      "kind": "provenance",
+      "parent_evidence_ids": [
+        "EV-PROFILE-E773EFA4BB96"
+      ],
+      "source_refs": [
+        {
+          "artifact_id": "confirmed_contract.json",
+          "artifact_sha256": "b8a251e9b41568e0f0e61c8052340e0586b105a869912d7a446d99d9d54e1e6c",
+          "locator": "AC-20276B7EEF90"
+        }
+      ],
+      "statement": "The explicit confirmed AuditContract permits pre-statistics analysis entry.",
+      "status": "ok",
+      "unit": null,
+      "value": {
+        "analysis_permitted": true,
+        "contract_id": "AC-20276B7EEF90",
+        "g1_eligible": true
+      }
+    },
+    {
+      "component": "SYSTEM",
+      "content_sha256": "e9de178dba5fdb5a01221857d1fd8dbc2e4974890ebb1486cc73dcfc9abf0369",
+      "contract_sha256": "20276b7eef907f7f44c08adb5c1b8200a65296a240ff3216e38909a99eec11bc",
+      "created_at": "2026-07-20T00:02:00Z",
+      "evidence_id": "EV-SYSTEM-E9DE178DBA5F",
+      "implementation_version": "task-013-stage1-golden-1.0.0",
+      "input_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+      "kind": "provenance",
+      "parent_evidence_ids": [
+        "EV-CONTRACT-736566EF9D6E"
+      ],
+      "source_refs": [
+        {
+          "artifact_id": "registry_snapshot.json",
+          "artifact_sha256": "1a26751609ef141d2eacb8345b2e91f854c4c6d3bef1e87c6a2afc0b885fbcf2",
+          "locator": "five immutable configuration identities"
+        }
+      ],
+      "statement": "The run uses the five frozen Stage 1 configuration snapshots.",
+      "status": "ok",
+      "unit": null,
+      "value": {
+        "all_frozen": true,
+        "combined_canonical_sha256": "3adcf2fedebc515497b24bb0eae2b51af9af4bc4bf55556a0d9e375008ed9bf2",
+        "config_count": 5
+      }
+    }
+  ],
+  "run_id": "RUN-A1B2C3D4E5F6",
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,157 @@
+{
+  "candidate_semantic_mappings": [
+    {
+      "column": "quantity",
+      "confidence": 0.95,
+      "reasons": [
+        "inferred: strong name and finite numeric type suggest quantity; not confirmed"
+      ],
+      "semantic_role": "quantity"
+    },
+    {
+      "column": "product",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest product; not confirmed"
+      ],
+      "semantic_role": "product"
+    },
+    {
+      "column": "batch_id",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest deployment_group; not confirmed"
+      ],
+      "semantic_role": "deployment_group"
+    },
+    {
+      "column": "timestamp",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest time; not confirmed"
+      ],
+      "semantic_role": "time"
+    },
+    {
+      "column": "row_sequence",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest time; not confirmed"
+      ],
+      "semantic_role": "time"
+    },
+    {
+      "column": "stream",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest stream; not confirmed"
+      ],
+      "semantic_role": "stream"
+    },
+    {
+      "column": "shift",
+      "confidence": 0.85,
+      "reasons": [
+        "inferred: normalized column name and compatible type suggest shift; not confirmed"
+      ],
+      "semantic_role": "shift"
+    }
+  ],
+  "column_profiles": [
+    {
+      "dtype": "number",
+      "missing_fraction": 0.0,
+      "name": "quantity",
+      "numeric_summary": {
+        "max": 250.04,
+        "median": 250.0,
+        "min": 249.96
+      },
+      "safe_examples": [
+        249.96,
+        250.0,
+        250.04
+      ],
+      "unique_count": 9
+    },
+    {
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "name": "product",
+      "numeric_summary": null,
+      "safe_examples": [
+        "product_A",
+        "product_B"
+      ],
+      "unique_count": 2
+    },
+    {
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "name": "batch_id",
+      "numeric_summary": null,
+      "safe_examples": [
+        "batch_01",
+        "batch_02",
+        "batch_03"
+      ],
+      "unique_count": 8
+    },
+    {
+      "dtype": "datetime",
+      "missing_fraction": 0.0,
+      "name": "timestamp",
+      "numeric_summary": null,
+      "safe_examples": [],
+      "unique_count": 80
+    },
+    {
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "name": "stream",
+      "numeric_summary": null,
+      "safe_examples": [
+        "stream_1",
+        "stream_2",
+        "stream_3"
+      ],
+      "unique_count": 4
+    },
+    {
+      "dtype": "string",
+      "missing_fraction": 0.0,
+      "name": "shift",
+      "numeric_summary": null,
+      "safe_examples": [
+        "day",
+        "night"
+      ],
+      "unique_count": 2
+    },
+    {
+      "dtype": "integer",
+      "missing_fraction": 0.0,
+      "name": "row_sequence",
+      "numeric_summary": {
+        "max": 80,
+        "median": 40.5,
+        "min": 1
+      },
+      "safe_examples": [
+        1,
+        40.5,
+        80
+      ],
+      "unique_count": 80
+    }
+  ],
+  "dataset_id": "dataset-3445e18cc213d472",
+  "dataset_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+  "privacy_redaction": {
+    "direct_identifiers_included": false,
+    "high_cardinality_values_included": false,
+    "raw_rows_included": false
+  },
+  "row_count": 80,
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,162 @@
+{
+  "assumptions": [
+    {
+      "assumption_id": "ASM-001",
+      "source": "builtin_profile",
+      "text": "The public scenario policy is illustrative and user-confirmed for demonstration.",
+      "user_confirmed": true
+    }
+  ],
+  "column_mapping": {
+    "deployment_group": {
+      "column": "batch_id",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "product": {
+      "column": "product",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "quantity": {
+      "column": "quantity",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "shift": {
+      "column": "shift",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "stream": {
+      "column": "stream",
+      "confidence": 1.0,
+      "confirmed": true
+    },
+    "time": {
+      "column": "timestamp",
+      "confidence": 1.0,
+      "confirmed": true
+    }
+  },
+  "compiler": {
+    "fallback_used": false,
+    "mode": "versioned_builtin",
+    "model": null,
+    "request_id": null,
+    "structured_output_schema_version": "1.0.0"
+  },
+  "confirmation": {
+    "confirmed_at": null,
+    "confirmed_by": "none",
+    "confirmed_fields": [
+      "column_mapping.quantity.column",
+      "column_mapping.deployment_group.column",
+      "measurement.quantity_semantics",
+      "measurement.unit",
+      "grouping.deployment_group_columns",
+      "ordering.status",
+      "ordering.time_column",
+      "policy.nominal_quantity",
+      "policy.lower_limit",
+      "policy.alpha",
+      "policy.minimum_actionable_shift",
+      "policy.maximum_screening_shift",
+      "policy.protocol_spread_tolerance",
+      "riec.c",
+      "privacy.classification"
+    ],
+    "status": "draft"
+  },
+  "contract_id": "AC-000000000000",
+  "created_at": "2026-07-20T00:00:00Z",
+  "evidence_profile": {
+    "bootstrap_lower_confidence": 0.9,
+    "bootstrap_max_failure_fraction": 0.1,
+    "bootstrap_replicates": 200,
+    "min_expected_tail_count": 5,
+    "min_groups_action": 8,
+    "min_groups_exploratory": 4,
+    "min_ordered_coverage": 0.6,
+    "min_ordered_points_per_stream": 20,
+    "min_rows": 80,
+    "profile_version": "1.0.0"
+  },
+  "grouping": {
+    "deployment_group_columns": [
+      "batch_id"
+    ],
+    "deployment_unit_name": "production batch",
+    "nested_context_columns": [
+      "stream",
+      "shift"
+    ],
+    "no_random_row_fallback": true
+  },
+  "measurement": {
+    "conversion": {
+      "fixed_density": null,
+      "formula_note": null,
+      "method": "none",
+      "required": false
+    },
+    "measurement_resolution": 0.01,
+    "quantity_semantics": "volume",
+    "unit": "mL"
+  },
+  "ordering": {
+    "status": "confirmed",
+    "tie_break_columns": [
+      "row_sequence"
+    ],
+    "time_column": "timestamp",
+    "timezone": "UTC",
+    "within_stream_order_confirmed": true
+  },
+  "policy": {
+    "alpha": 0.01,
+    "lower_limit": 249.5,
+    "maximum_screening_shift": 1.0,
+    "minimum_actionable_shift": 0.1,
+    "nominal_quantity": 250.0,
+    "notes": "Illustrative public demo values; not regulatory constants.",
+    "policy_source": {
+      "kind": "builtin_profile",
+      "text_sha256": "c992143effb452bcb076a775ea8652ba39a35e0a33ce38d78aa715be113175a3",
+      "title": "Illustrative public demo policy v1",
+      "user_confirmed": true
+    },
+    "protocol_spread_tolerance": 0.5,
+    "underfill_event": "adjusted_quantity_strictly_less_than_lower_limit"
+  },
+  "privacy": {
+    "classification": "public_synthetic",
+    "direct_identifiers_to_gpt": false,
+    "raw_rows_to_gpt": false,
+    "redacted_summary_allowed": true,
+    "storage_mode": "ephemeral_public_session"
+  },
+  "riec": {
+    "baseline_candidate_id": "M0_intercept",
+    "c": 1.0,
+    "candidate_registry_id": "fill-structural-candidates.v1",
+    "group_balanced_diagnostic": true,
+    "max_exact_logo_groups": 200,
+    "near_tie_abs_tol": 1e-06,
+    "near_tie_rel_tol": 1e-08,
+    "risk_aggregation": "row_weighted_grouped_mse",
+    "splitter": "leave_one_deployment_group_out"
+  },
+  "schema_version": "1.0.0",
+  "source": {
+    "column_count": 7,
+    "dataset_id": "dataset-3445e18cc213d472",
+    "dataset_sha256": "3445e18cc213d4726e4d39d73226573822f6129c142b4cd5ee652134316ebf83",
+    "encoding": "internal",
+    "filename_display": "stage1_public_synthetic.csv",
+    "mode": "builtin_synthetic",
+    "row_count": 80,
+    "synthetic_mechanism": "stable_symmetric"
+  },
+  "unresolved_fields": []
+}

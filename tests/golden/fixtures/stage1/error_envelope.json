@@ -1,0 +1,15 @@
+{
+  "cause_chain": [],
+  "code": "PROFILE_MALFORMED_NUMERIC",
+  "error_class": "validation",
+  "error_id": "ERR-A1B2C3D4E5F6",
+  "message": "A quantity-like column contains malformed numeric data.",
+  "recoverable": true,
+  "safe_details": {
+    "column_index": 0,
+    "malformed_count": 1
+  },
+  "schema_version": "1.0.0",
+  "stage": "profile",
+  "user_action": "Correct the public synthetic CSV and profile it again."
+}

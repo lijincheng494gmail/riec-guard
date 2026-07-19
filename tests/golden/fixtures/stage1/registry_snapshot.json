@@ -1,0 +1,51 @@
+{
+  "combined_canonical_sha256": "3adcf2fedebc515497b24bb0eae2b51af9af4bc4bf55556a0d9e375008ed9bf2",
+  "configs": [
+    {
+      "canonical_json_sha256": "ec0c22a712d338bc9209fafd7f26c65346f339a80e546fa8f3dda4de5a36635c",
+      "config_type": "candidate_registry",
+      "file_sha256": "6eb708a209a71c97b935812e4fa7716e05aebec89e1ecad93f5ac1339ef588df",
+      "frozen": true,
+      "logical_id": "fill-structural-candidates.v1",
+      "repository_relative_source": "candidates.fill.v1.json",
+      "version": "1.0.0"
+    },
+    {
+      "canonical_json_sha256": "e15c70dcc93114bb24ff5930097f978de099bb43c2108a8cedfef1243ea3b041",
+      "config_type": "protocol_registry",
+      "file_sha256": "7d53fa5a224b33a0309230b6482a9747ba84122bb349ee7f24ca5d4777f10422",
+      "frozen": true,
+      "logical_id": "fill-protocols.v1",
+      "repository_relative_source": "protocols.fill.v1.json",
+      "version": "1.0.0"
+    },
+    {
+      "canonical_json_sha256": "292f94e1b3b80b4b751dd0d9697226070d71c5ac3d6abf7e524a7e1af72fa52e",
+      "config_type": "evidence_profile",
+      "file_sha256": "7ec60ea7ec1071fbb6cabce9ea67b07d01e760ebdcbb539f357eb2da656c57be",
+      "frozen": true,
+      "logical_id": "default-fill-v1",
+      "repository_relative_source": "evidence_profile.default.v1.json",
+      "version": "1.0.0"
+    },
+    {
+      "canonical_json_sha256": "a4f03cf6924e87f4e8605f5b5a5a2645e1f0f6395f798a9ede79c3bcf96cfc1f",
+      "config_type": "policy_registry",
+      "file_sha256": "a23fee6c0237d63e2d7c4d4dd4e30e4adcca766e84603905eeb7c5aaa23ef15e",
+      "frozen": true,
+      "logical_id": "fill-policy-inputs.v1",
+      "repository_relative_source": "policy_inputs.fill.v1.json",
+      "version": "1.0.0"
+    },
+    {
+      "canonical_json_sha256": "6c65856ef785df56eeb6d33d8a16681b3857f13d7c67370a5975db87afd347d7",
+      "config_type": "claim_ruleset",
+      "file_sha256": "5413c789d09d2d2f0efeb2fa65ed70f16a57127d98c9c87e81766d9969d94e24",
+      "frozen": true,
+      "logical_id": "fill-claims-v1",
+      "repository_relative_source": "claim_rules.v1.json",
+      "version": "1.0.0"
+    }
+  ],
+  "schema_version": "1.0.0"
+}
