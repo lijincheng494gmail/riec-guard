@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "fill-policy-inputs.v1",
+  "registry_version": "1.0.0",
+  "frozen_before_run": true,
+  "inputs": [
+    {
+      "input_id": "nominal_quantity",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.nominal_quantity",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "lower_limit",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.lower_limit_le_nominal_quantity",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "alpha",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.alpha_open_interval_0_0.5",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "measurement_resolution",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": false,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.measurement.measurement_resolution_positive",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "minimum_actionable_shift",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.minimum_actionable_shift_nonnegative",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "maximum_screening_shift",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.maximum_screening_shift_range",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "protocol_spread_tolerance",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "number",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.policy.protocol_spread_tolerance_nonnegative",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "quantity_unit",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "unit",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.measurement.unit",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "quantity_semantics",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "quantity_semantics",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.measurement.quantity_semantics",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    },
+    {
+      "input_id": "conversion_method",
+      "version": "1.0.0",
+      "category": "policy_input",
+      "value_type": "conversion_method",
+      "required": true,
+      "confirmation_required": true,
+      "decision_critical": true,
+      "validation_rule_reference": "AUDIT_CONTRACT.measurement.conversion.method",
+      "provenance_requirement": "confirmed_audit_contract",
+      "may_enter_riec_ranking": false
+    }
+  ]
+}

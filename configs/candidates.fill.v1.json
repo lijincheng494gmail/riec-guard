@@ -1,73 +1,156 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "fill-structural-v1",
-  "baseline_candidate_id": "M0",
-  "loss": "squared_error",
-  "grouped_split": "leave_one_deployment_group_out",
-  "primary_aggregation": "row_weighted",
-  "c": 1.0,
-  "near_tie": {
-    "abs_tol": 1e-06,
-    "rel_tol": 1e-08
-  },
+  "registry_id": "fill-structural-candidates.v1",
+  "registry_version": "1.0.0",
+  "frozen_before_ranking": true,
+  "baseline_candidate_id": "M0_intercept",
+  "description": "Finite OLS fixed-effect structural library frozen for the Fill Pack MVP.",
   "candidates": [
     {
-      "id": "M0",
-      "label": "intercept",
-      "features": [
-        "intercept"
-      ]
+      "candidate_id": "M0_intercept",
+      "label": "Intercept only",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": ["quantity", "deployment_group"],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M1",
-      "label": "product",
-      "features": [
-        "product"
-      ]
+      "candidate_id": "M1_product",
+      "label": "Product fixed effects",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": ["quantity", "product", "deployment_group"],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M2",
-      "label": "product + stream",
-      "features": [
-        "product",
-        "stream"
-      ]
+      "candidate_id": "M2_product_stream",
+      "label": "Product and stream fixed effects",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product", "stream"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": ["quantity", "product", "stream", "deployment_group"],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M3",
-      "label": "product + shift",
-      "features": [
-        "product",
-        "shift"
-      ]
+      "candidate_id": "M3_product_shift",
+      "label": "Product and shift fixed effects",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product", "shift"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": ["quantity", "product", "shift", "deployment_group"],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M4",
-      "label": "product + stream + shift",
-      "features": [
-        "product",
-        "stream",
-        "shift"
-      ]
+      "candidate_id": "M4_product_stream_shift",
+      "label": "Product, stream, and shift fixed effects",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product", "stream", "shift"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": [
+          "quantity",
+          "product",
+          "stream",
+          "shift",
+          "deployment_group"
+        ],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M5",
-      "label": "product + time",
-      "features": [
-        "product",
-        "time"
-      ]
+      "candidate_id": "M5_product_time",
+      "label": "Product and linear time",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product", "time"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": ["quantity", "product", "time", "deployment_group"],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     },
     {
-      "id": "M6",
-      "label": "product + stream + shift + time",
-      "features": [
-        "product",
-        "stream",
-        "shift",
-        "time"
-      ]
+      "candidate_id": "M6_product_stream_shift_time",
+      "label": "Product, stream, shift, and linear time",
+      "model_family": "ols_fixed_effects",
+      "formula_terms": ["intercept", "product", "stream", "shift", "time"],
+      "version": "1.0.0",
+      "parameter_count_rule": {
+        "kind": "realized_design_rank",
+        "include_intercept": true
+      },
+      "feasibility_requirements": {
+        "required_semantics": [
+          "quantity",
+          "product",
+          "stream",
+          "shift",
+          "time",
+          "deployment_group"
+        ],
+        "min_rows": 80,
+        "min_groups": 4,
+        "full_rank_required": true
+      },
+      "enabled": true,
+      "notes": null
     }
-  ],
-  "status": "frozen_for_implementation"
+  ]
 }

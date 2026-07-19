@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "fill-registry-manifest.v1",
+  "manifest_version": "1.0.0",
+  "frozen_before_load": true,
+  "entries": [
+    {
+      "logical_id": "fill-structural-candidates.v1",
+      "config_type": "candidate_registry",
+      "version": "1.0.0",
+      "repository_relative_path": "candidates.fill.v1.json"
+    },
+    {
+      "logical_id": "fill-protocols.v1",
+      "config_type": "protocol_registry",
+      "version": "1.0.0",
+      "repository_relative_path": "protocols.fill.v1.json"
+    },
+    {
+      "logical_id": "default-fill-v1",
+      "config_type": "evidence_profile",
+      "version": "1.0.0",
+      "repository_relative_path": "evidence_profile.default.v1.json"
+    },
+    {
+      "logical_id": "fill-policy-inputs.v1",
+      "config_type": "policy_registry",
+      "version": "1.0.0",
+      "repository_relative_path": "policy_inputs.fill.v1.json"
+    },
+    {
+      "logical_id": "fill-claims-v1",
+      "config_type": "claim_ruleset",
+      "version": "1.0.0",
+      "repository_relative_path": "claim_rules.v1.json"
+    }
+  ]
+}
