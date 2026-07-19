@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+import riec_guard.evidence.ledger as ledger_module
 from riec_guard.evidence.ids import (
     CanonicalJsonError,
     EvidenceError,
@@ -17,7 +19,12 @@ from riec_guard.evidence.ids import (
     sha256_file,
     verify_evidence_item,
 )
-from riec_guard.evidence.ledger import EvidenceLedgerBuilder, verify_ledger
+from riec_guard.evidence.ledger import (
+    EvidenceLedgerBuilder,
+    RunBoundEvidence,
+    bind_ledger_items,
+    verify_ledger,
+)
 from riec_guard.evidence.models import EvidenceItem, EvidenceLedger
 from riec_guard.evidence.provenance import validate_provenance_graph
 
@@ -27,6 +34,7 @@ INPUT_HASH = "1" * 64
 CONTRACT_HASH = "2" * 64
 SOURCE_HASH = "3" * 64
 RUN_ID = "RUN-ABCDEF123456"
+FROZEN_LEDGER_HASH = "b533abc49c9438e59ed493e94b6c855b41bd8e87ab7e0646411d951dc06c9ca7"
 
 
 def _fields(**changes: object) -> dict[str, object]:
@@ -56,6 +64,31 @@ def _fields(**changes: object) -> dict[str, object]:
 
 def _item(**changes: object) -> EvidenceItem:
     return create_evidence_item(**_fields(**changes))  # type: ignore[arg-type]
+
+
+def _append_new(
+    builder: EvidenceLedgerBuilder,
+    **changes: object,
+) -> RunBoundEvidence:
+    return builder.append_new(**_fields(**changes))  # type: ignore[arg-type]
+
+
+def _bind_items(
+    ledger: EvidenceLedger,
+    *,
+    expected_source_run_id: str,
+    expected_ledger_sha256: str | None = None,
+) -> tuple[RunBoundEvidence, ...]:
+    trusted_hash = (
+        verify_ledger(ledger).ledger_canonical_sha256
+        if expected_ledger_sha256 is None
+        else expected_ledger_sha256
+    )
+    return bind_ledger_items(
+        ledger,
+        expected_source_run_id=expected_source_run_id,
+        expected_ledger_sha256=trusted_hash,
+    )
 
 
 def _example_payload() -> dict[str, object]:
@@ -278,7 +311,7 @@ def test_self_parenting_is_rejected() -> None:
 
 def test_missing_parent_is_rejected_at_finalization() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    builder.append(_item(parent_evidence_ids=["EV-SYSTEM-AAAAAAAAAAAA"]))
+    _append_new(builder, parent_evidence_ids=["EV-SYSTEM-AAAAAAAAAAAA"])
     with pytest.raises(EvidenceError) as caught:
         builder.finalize()
     _expect_code(caught, EvidenceErrorCode.EVIDENCE_PARENT_NOT_FOUND)
@@ -347,11 +380,33 @@ def test_valid_acyclic_chain_passes_and_supports_traversal() -> None:
 
 def test_imported_out_of_order_acyclic_ledger_passes() -> None:
     first, second, third = _valid_chain()
+    source = EvidenceLedger.model_validate(
+        {
+            "schema_version": "1.0.0",
+            "run_id": RUN_ID,
+            "canonicalization": _example_payload()["canonicalization"],
+            "items": [
+                first.to_canonical_dict(),
+                second.to_canonical_dict(),
+                third.to_canonical_dict(),
+            ],
+        }
+    )
+    bound_by_id = {
+        record.item.evidence_id: record
+        for record in _bind_items(source, expected_source_run_id=RUN_ID)
+    }
     builder = EvidenceLedgerBuilder(RUN_ID)
     for item in (third, first, second):
-        builder.append(item)
+        builder.append(bound_by_id[item.evidence_id])
     ledger = builder.finalize()
-    assert verify_ledger(ledger).item_count == 3
+    result = verify_ledger(
+        ledger,
+        expected_run_id=RUN_ID,
+        bound_items=builder.bound_items,
+    )
+    assert result.item_count == 3
+    assert result.run_ownership_verified
 
 
 def test_duplicate_evidence_id_is_rejected() -> None:
@@ -369,27 +424,30 @@ def test_duplicate_evidence_id_is_rejected() -> None:
 
 def test_canonically_identical_repeated_append_is_idempotent() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    first = builder.append(_item(created_at="2026-07-19T00:00:00Z"))
-    second = builder.append(_item(created_at="2026-07-20T00:00:00Z"))
+    first = _append_new(builder, created_at="2026-07-19T00:00:00Z")
+    second = _append_new(builder, created_at="2026-07-20T00:00:00Z")
     assert second is first
     assert len(builder.items) == 1
 
 
-def test_same_id_with_different_content_fails_as_collision() -> None:
+def test_same_id_with_different_content_fails_as_collision(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    original = builder.append(_item())
-    altered = original.model_copy(update={"statement": "Different aggregate statement."})
+    original = _append_new(builder)
+    altered = original.item.model_copy(update={"statement": "Different aggregate statement."})
+    monkeypatch.setattr(ledger_module, "create_evidence_item", lambda **_fields: altered)
     with pytest.raises(EvidenceError) as caught:
-        builder.append(altered)
+        _append_new(builder)
     _expect_code(caught, EvidenceErrorCode.EVIDENCE_COLLISION)
 
 
 def test_append_after_finalization_is_rejected() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    builder.append(_item())
+    _append_new(builder)
     builder.finalize()
     with pytest.raises(EvidenceError) as caught:
-        builder.append(_item(statement="Another aggregate."))
+        _append_new(builder, statement="Another aggregate.")
     _expect_code(caught, EvidenceErrorCode.EVIDENCE_LEDGER_FINALIZED)
 
 
@@ -401,20 +459,30 @@ def test_empty_ledger_cannot_finalize() -> None:
 
 def test_final_ledger_validates_against_canonical_model_and_schema() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    builder.append(_item())
+    _append_new(builder)
     ledger = builder.finalize()
     assert EvidenceLedger.model_validate(ledger.to_canonical_dict()) == ledger
 
 
 def test_frozen_evidence_ledger_example_verifies_completely() -> None:
     ledger = EvidenceLedger.model_validate(_example_payload())
-    result = verify_ledger(ledger, expected_run_id="RUN-F0DE9EA43245")
+    structural = verify_ledger(ledger)
+    assert not structural.run_ownership_verified
+    bound = _bind_items(
+        ledger,
+        expected_source_run_id="RUN-F0DE9EA43245",
+        expected_ledger_sha256=FROZEN_LEDGER_HASH,
+    )
+    result = verify_ledger(
+        ledger,
+        expected_run_id="RUN-F0DE9EA43245",
+        bound_items=bound,
+    )
     assert result.item_count == 11
     assert result.graph.node_count == 11
     assert result.graph.edge_count == 18
-    assert result.ledger_canonical_sha256 == (
-        "b533abc49c9438e59ed493e94b6c855b41bd8e87ab7e0646411d951dc06c9ca7"
-    )
+    assert result.ledger_canonical_sha256 == (FROZEN_LEDGER_HASH)
+    assert result.run_ownership_verified
 
 
 def test_source_ref_absolute_path_is_rejected() -> None:
@@ -577,7 +645,7 @@ def test_public_error_does_not_echo_secret_or_absolute_path() -> None:
 
 def test_finalized_ledger_and_nested_payload_are_immutable() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    builder.append(_item())
+    _append_new(builder)
     ledger = builder.finalize()
     with pytest.raises(ValidationError):
         ledger.run_id = "RUN-BBBBBBBBBBBB"  # type: ignore[misc]
@@ -586,14 +654,12 @@ def test_finalized_ledger_and_nested_payload_are_immutable() -> None:
 
 
 def test_builder_detaches_caller_owned_mutable_evidence_value() -> None:
-    original = _item()
     alias = {"n_rows": 3, "mean": 1.25}
-    aliased = original.model_copy(update={"value": alias})
     builder = EvidenceLedgerBuilder(RUN_ID)
-    stored = builder.append(aliased)
+    stored = _append_new(builder, value=alias)
     ledger = builder.finalize()
     alias["n_rows"] = 999
-    assert stored.value["n_rows"] == 3  # type: ignore[index]
+    assert stored.item.value["n_rows"] == 3  # type: ignore[index]
     assert ledger.items[0].value["n_rows"] == 3  # type: ignore[index]
     assert builder.finalize() is ledger
 
@@ -643,9 +709,186 @@ def test_invalid_import_diagnostics_do_not_depend_on_item_order() -> None:
 
 def test_expected_run_mismatch_is_rejected() -> None:
     builder = EvidenceLedgerBuilder(RUN_ID)
-    builder.append(_item())
+    _append_new(builder)
     with pytest.raises(EvidenceError) as caught:
-        verify_ledger(builder.finalize(), expected_run_id="RUN-BBBBBBBBBBBB")
+        verify_ledger(
+            builder.finalize(),
+            expected_run_id="RUN-BBBBBBBBBBBB",
+            bound_items=builder.bound_items,
+        )
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_same_run_bound_import_passes_with_verified_ownership() -> None:
+    source = EvidenceLedgerBuilder(RUN_ID)
+    _append_new(source)
+    source_ledger = source.finalize()
+    target = EvidenceLedgerBuilder(RUN_ID)
+    for record in _bind_items(source_ledger, expected_source_run_id=RUN_ID):
+        target.append(record)
+    target_ledger = target.finalize()
+    result = verify_ledger(
+        target_ledger,
+        expected_run_id=RUN_ID,
+        bound_items=target.bound_items,
+    )
+    assert result.item_count == 1
+    assert result.run_ownership_verified
+
+
+def test_cross_run_bound_import_fails_before_idempotence() -> None:
+    source = EvidenceLedgerBuilder("RUN-AAAAAAAAAAAA")
+    _append_new(source)
+    foreign_ledger = source.finalize()
+    foreign = _bind_items(
+        foreign_ledger,
+        expected_source_run_id="RUN-AAAAAAAAAAAA",
+    )[0]
+    target = EvidenceLedgerBuilder("RUN-BBBBBBBBBBBB")
+    with pytest.raises(EvidenceError) as caught:
+        target.append(foreign)
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+    assert target.items == ()
+
+
+def test_naked_imported_item_without_ownership_context_fails() -> None:
+    target = EvidenceLedgerBuilder(RUN_ID)
+    with pytest.raises(EvidenceError) as caught:
+        target.append(_item())
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+    assert target.items == ()
+
+
+def test_public_run_bound_record_construction_is_sealed() -> None:
+    with pytest.raises(EvidenceError) as caught:
+        RunBoundEvidence(RUN_ID, _item())
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_run_bound_record_cannot_be_rebound_with_dataclasses_replace() -> None:
+    source = EvidenceLedgerBuilder("RUN-AAAAAAAAAAAA")
+    foreign = _append_new(source)
+    with pytest.raises(EvidenceError) as caught:
+        replace(foreign, run_id="RUN-BBBBBBBBBBBB")
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_run_bound_record_detects_direct_run_id_mutation() -> None:
+    source = EvidenceLedgerBuilder("RUN-AAAAAAAAAAAA")
+    foreign = _append_new(source)
+    object.__setattr__(foreign, "run_id", "RUN-BBBBBBBBBBBB")
+    target = EvidenceLedgerBuilder("RUN-BBBBBBBBBBBB")
+    with pytest.raises(EvidenceError) as caught:
+        target.append(foreign)
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_run_bound_record_detects_direct_item_replacement() -> None:
+    source = EvidenceLedgerBuilder(RUN_ID)
+    bound = _append_new(source)
+    object.__setattr__(bound, "item", _item(statement="Replacement aggregate."))
+    target = EvidenceLedgerBuilder(RUN_ID)
+    with pytest.raises(EvidenceError) as caught:
+        target.append(bound)
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_binding_requires_trusted_source_context() -> None:
+    source = EvidenceLedger.model_validate(_example_payload())
+    with pytest.raises(EvidenceError) as caught:
+        bind_ledger_items(source)
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+@pytest.mark.parametrize("reconstruct", [False, True])
+def test_relabelled_source_ledger_cannot_mint_target_ownership(reconstruct: bool) -> None:
+    source = EvidenceLedger.model_validate(_example_payload())
+    if reconstruct:
+        payload = source.to_canonical_dict()
+        payload["run_id"] = RUN_ID
+        relabelled = EvidenceLedger.model_validate(payload)
+    else:
+        relabelled = source.model_copy(update={"run_id": RUN_ID})
+    with pytest.raises(EvidenceError) as caught:
+        bind_ledger_items(
+            relabelled,
+            expected_source_run_id="RUN-F0DE9EA43245",
+            expected_ledger_sha256=FROZEN_LEDGER_HASH,
+        )
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+
+
+def test_all_frozen_items_cannot_be_rebound_to_another_run() -> None:
+    source = EvidenceLedger.model_validate(_example_payload())
+    assert source.run_id == "RUN-F0DE9EA43245"
+    target = EvidenceLedgerBuilder(RUN_ID)
+    for foreign in _bind_items(
+        source,
+        expected_source_run_id="RUN-F0DE9EA43245",
+        expected_ledger_sha256=FROZEN_LEDGER_HASH,
+    ):
+        with pytest.raises(EvidenceError) as caught:
+            target.append(foreign)
+        _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+    assert target.items == ()
+
+
+def test_cross_run_parent_record_and_link_cannot_enter_target() -> None:
+    source = EvidenceLedgerBuilder("RUN-AAAAAAAAAAAA")
+    parent = _append_new(source, statement="Source parent aggregate.")
+    _append_new(
+        source,
+        component="RIEC",
+        statement="Source child aggregate.",
+        parent_evidence_ids=[parent.item.evidence_id],
+    )
+    foreign_ledger = source.finalize()
+    foreign_records = _bind_items(
+        foreign_ledger,
+        expected_source_run_id="RUN-AAAAAAAAAAAA",
+    )
+    target = EvidenceLedgerBuilder("RUN-BBBBBBBBBBBB")
+    for foreign in foreign_records:
+        with pytest.raises(EvidenceError) as caught:
+            target.append(foreign)
+        _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+    _append_new(
+        target,
+        component="ACTION",
+        kind="decision_reason",
+        status="warning",
+        statement="Target child cannot claim a foreign parent.",
+        parent_evidence_ids=[parent.item.evidence_id],
+    )
+    with pytest.raises(EvidenceError) as caught_parent:
+        target.finalize()
+    _expect_code(caught_parent, EvidenceErrorCode.EVIDENCE_PARENT_NOT_FOUND)
+
+
+def test_identical_content_does_not_bypass_run_ownership() -> None:
+    source = EvidenceLedgerBuilder("RUN-AAAAAAAAAAAA")
+    source_item = _append_new(source)
+    foreign_ledger = source.finalize()
+    foreign = _bind_items(
+        foreign_ledger,
+        expected_source_run_id="RUN-AAAAAAAAAAAA",
+    )[0]
+    target = EvidenceLedgerBuilder("RUN-BBBBBBBBBBBB")
+    target_item = _append_new(target)
+    assert source_item.item.evidence_id == target_item.item.evidence_id
+    assert source_item.item.content_sha256 == target_item.item.content_sha256
+    with pytest.raises(EvidenceError) as caught:
+        target.append(foreign)
+    _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
+    assert target.items == (target_item.item,)
+
+
+def test_expected_run_verification_without_ownership_context_fails_closed() -> None:
+    builder = EvidenceLedgerBuilder(RUN_ID)
+    _append_new(builder)
+    ledger = builder.finalize()
+    with pytest.raises(EvidenceError) as caught:
+        verify_ledger(ledger, expected_run_id=RUN_ID)
     _expect_code(caught, EvidenceErrorCode.EVIDENCE_RUN_MISMATCH)
 
 

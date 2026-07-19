@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import os
 import platform as platform_module
 import re
+import secrets
 import stat
 import subprocess
 from collections.abc import Mapping, Sequence
@@ -11,11 +13,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from typing import TYPE_CHECKING, NoReturn, TypeVar
+from typing import NoReturn, TypeVar
 
 from pydantic import ValidationError
 
 from riec_guard.evidence.ids import CanonicalJsonError, canonical_sha256, sha256_file
+from riec_guard.riec.registry import RunRegistrySnapshot
 from riec_guard.telemetry.models import (
     CodeProvenance,
     EnvironmentProvenance,
@@ -34,9 +37,6 @@ from riec_guard.telemetry.models import (
     RunMode,
     RunStatus,
 )
-
-if TYPE_CHECKING:
-    from riec_guard.riec.registry import RunRegistrySnapshot
 
 _RUN_ID_PATTERN = re.compile(r"RUN-[A-F0-9]{12}\Z")
 _RUNTIME_RUN_ID_PATTERN = re.compile(r"RUN-([a-f0-9]{32})\Z")
@@ -105,6 +105,7 @@ _TERMINAL_STATUSES = frozenset(
         RunStatus.FAILED,
     }
 )
+_LIFECYCLE_TRANSITION_AUTHORITY = object()
 _MAX_CHECKSUM_ENTRIES = 200
 _MAX_CHECKSUM_BYTES = 120_000
 CHECKSUM_INVENTORY_PATH = "artifact_checksums.sha256"
@@ -144,6 +145,33 @@ class ManifestError(ValueError):
     def __init__(self, code: ManifestErrorCode, message: str) -> None:
         super().__init__(message[:500])
         self.code = code
+
+
+class _LifecycleTransitionKind(StrEnum):
+    INITIALIZE = "initialize"
+    START = "start"
+    COMPLETE = "complete"
+    COMPLETE_WITH_WARNINGS = "complete_with_warnings"
+    FAIL = "fail"
+
+
+@dataclass(frozen=True, slots=True)
+class _LifecycleEvent:
+    sequence: int
+    from_status: RunStatus
+    to_status: RunStatus
+    transition_timestamp: str
+    transition_kind: _LifecycleTransitionKind
+    previous_witness: str
+    witness: str
+
+
+@dataclass(frozen=True, slots=True)
+class _RegistryBinding:
+    snapshot: RunRegistrySnapshot
+    action_engine_version: str
+    expected_registries: ManifestRegistries
+    witness: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -200,11 +228,13 @@ class RunManifestBuilder:
         code: CodeProvenance | Mapping[str, object],
         environment: EnvironmentProvenance | Mapping[str, object],
         contract: ManifestContract | Mapping[str, object],
-        registries: ManifestRegistries | Mapping[str, object],
+        registry_snapshot: RunRegistrySnapshot,
+        action_engine_version: str,
         randomness: ManifestRandomness | Mapping[str, object],
         configured_model: str,
         artifact_root: Path,
         storage_root_class: ManifestStorageRootClass | str,
+        registries: ManifestRegistries | Mapping[str, object] | None = None,
         release_scan_passed: bool = False,
         api: str = "responses",
         store: bool = False,
@@ -218,6 +248,20 @@ class RunManifestBuilder:
         self._started_at = started_at
         self._finished_at: str | None = None
         self._status = RunStatus.CREATED
+        self._lifecycle_key = secrets.token_bytes(32)
+        self._lifecycle_events: tuple[_LifecycleEvent, ...] = (
+            _create_lifecycle_event(
+                key=self._lifecycle_key,
+                run_id=run_id,
+                started_at=started_at,
+                sequence=0,
+                from_status=RunStatus.CREATED,
+                to_status=RunStatus.CREATED,
+                transition_timestamp=started_at,
+                transition_kind=_LifecycleTransitionKind.INITIALIZE,
+                previous_witness="0" * 64,
+            ),
+        )
         self._code = _coerce_model(CodeProvenance, code, ManifestErrorCode.MANIFEST_SCHEMA_INVALID)
         self._environment = _coerce_model(
             EnvironmentProvenance, environment, ManifestErrorCode.MANIFEST_SCHEMA_INVALID
@@ -225,8 +269,25 @@ class RunManifestBuilder:
         self._contract = _coerce_model(
             ManifestContract, contract, ManifestErrorCode.MANIFEST_CONTRACT_INVALID
         )
-        self._registries = _coerce_model(
-            ManifestRegistries, registries, ManifestErrorCode.MANIFEST_REGISTRY_INVALID
+        expected_registries = manifest_registries_from_snapshot(
+            registry_snapshot,
+            action_engine_version=action_engine_version,
+        )
+        self._registry_binding_key = secrets.token_bytes(32)
+        self._registry_binding = _create_registry_binding(
+            key=self._registry_binding_key,
+            snapshot=registry_snapshot,
+            action_engine_version=action_engine_version,
+            expected_registries=expected_registries,
+        )
+        self._registries = (
+            expected_registries
+            if registries is None
+            else _coerce_model(
+                ManifestRegistries,
+                registries,
+                ManifestErrorCode.MANIFEST_REGISTRY_INVALID,
+            )
         )
         self._randomness = _coerce_model(
             ManifestRandomness, randomness, ManifestErrorCode.MANIFEST_RANDOMNESS_INVALID
@@ -267,6 +328,11 @@ class RunManifestBuilder:
         _validate_environment(self._environment)
         _validate_contract(self._contract)
         _validate_registries(self._registries)
+        _verify_registry_binding_state(
+            self._registries,
+            key=self._registry_binding_key,
+            binding=self._registry_binding,
+        )
         _validate_randomness(self._randomness)
         _validate_mode_storage(self._mode, self._storage_root_class)
 
@@ -276,10 +342,12 @@ class RunManifestBuilder:
 
     @property
     def status(self) -> RunStatus:
+        self._verify_lifecycle_witness()
         return self._status
 
     @property
     def finished_at(self) -> str | None:
+        self._verify_lifecycle_witness()
         return self._finished_at
 
     @property
@@ -295,8 +363,14 @@ class RunManifestBuilder:
         return tuple(self._artifacts)
 
     def start(self) -> RunManifestBuilder:
+        self._verify_lifecycle_witness()
         if self._status is RunStatus.CREATED:
-            self._status = RunStatus.RUNNING
+            self._apply_lifecycle_transition(
+                to_status=RunStatus.RUNNING,
+                transition_timestamp=self._started_at,
+                transition_kind=_LifecycleTransitionKind.START,
+                _authority=_LIFECYCLE_TRANSITION_AUTHORITY,
+            )
             return self
         if self._status is RunStatus.RUNNING:
             return self
@@ -543,10 +617,18 @@ class RunManifestBuilder:
         return artifact
 
     def finalize(self) -> ManifestFinalizationResult:
+        self._verify_lifecycle_witness()
+        _verify_registry_binding_state(
+            self._registries,
+            key=self._registry_binding_key,
+            binding=self._registry_binding,
+        )
         if self._final_result is not None:
             verified = verify_manifest(
                 self._final_result.manifest,
                 artifact_root=self._artifact_root,
+                expected_registry_snapshot=self._registry_binding.snapshot,
+                expected_action_engine_version=self._registry_binding.action_engine_version,
             )
             if verified.manifest_sha256 != self._final_result.manifest_sha256:
                 _raise(
@@ -612,7 +694,12 @@ class RunManifestBuilder:
                 ManifestErrorCode.MANIFEST_SCHEMA_INVALID,
                 "Run manifest does not satisfy the canonical schema.",
             ) from None
-        verified = verify_manifest(manifest, artifact_root=self._artifact_root)
+        verified = verify_manifest(
+            manifest,
+            artifact_root=self._artifact_root,
+            expected_registry_snapshot=self._registry_binding.snapshot,
+            expected_action_engine_version=self._registry_binding.action_engine_version,
+        )
         self._final_result = ManifestFinalizationResult(
             manifest=manifest,
             manifest_sha256=verified.manifest_sha256,
@@ -621,6 +708,7 @@ class RunManifestBuilder:
         return self._final_result
 
     def _terminal_transition(self, target: RunStatus, finished_at: str) -> RunManifestBuilder:
+        self._verify_lifecycle_witness()
         _validate_timestamp(finished_at)
         if _parse_timestamp(finished_at) < _parse_timestamp(self._started_at):
             _raise(
@@ -648,16 +736,219 @@ class RunManifestBuilder:
                 ManifestErrorCode.MANIFEST_INVALID_TRANSITION,
                 "Run failure transition is invalid.",
             )
-        self._status = target
-        self._finished_at = finished_at
+        transition_kind = {
+            RunStatus.COMPLETED: _LifecycleTransitionKind.COMPLETE,
+            RunStatus.COMPLETED_WITH_WARNINGS: _LifecycleTransitionKind.COMPLETE_WITH_WARNINGS,
+            RunStatus.FAILED: _LifecycleTransitionKind.FAIL,
+        }[target]
+        self._apply_lifecycle_transition(
+            to_status=target,
+            transition_timestamp=finished_at,
+            transition_kind=transition_kind,
+            _authority=_LIFECYCLE_TRANSITION_AUTHORITY,
+        )
         return self
 
     def _ensure_mutable(self) -> None:
+        self._verify_lifecycle_witness()
         if self._status in _TERMINAL_STATUSES or self._final_result is not None:
             _raise(
                 ManifestErrorCode.MANIFEST_INVALID_TRANSITION,
                 "Terminal manifest content cannot be changed.",
             )
+
+    def _apply_lifecycle_transition(
+        self,
+        *,
+        to_status: RunStatus,
+        transition_timestamp: str,
+        transition_kind: _LifecycleTransitionKind,
+        _authority: object | None = None,
+    ) -> None:
+        self._verify_lifecycle_witness()
+        if _authority is not _LIFECYCLE_TRANSITION_AUTHORITY:
+            _raise_lifecycle_witness_error()
+        allowed = {
+            (RunStatus.CREATED, RunStatus.RUNNING): _LifecycleTransitionKind.START,
+            (RunStatus.CREATED, RunStatus.FAILED): _LifecycleTransitionKind.FAIL,
+            (RunStatus.RUNNING, RunStatus.COMPLETED): _LifecycleTransitionKind.COMPLETE,
+            (
+                RunStatus.RUNNING,
+                RunStatus.COMPLETED_WITH_WARNINGS,
+            ): _LifecycleTransitionKind.COMPLETE_WITH_WARNINGS,
+            (RunStatus.RUNNING, RunStatus.FAILED): _LifecycleTransitionKind.FAIL,
+        }
+        if allowed.get((self._status, to_status)) is not transition_kind:
+            _raise_lifecycle_witness_error()
+        previous = self._lifecycle_events[-1]
+        event = _create_lifecycle_event(
+            key=self._lifecycle_key,
+            run_id=self._run_id,
+            started_at=self._started_at,
+            sequence=len(self._lifecycle_events),
+            from_status=self._status,
+            to_status=to_status,
+            transition_timestamp=transition_timestamp,
+            transition_kind=transition_kind,
+            previous_witness=previous.witness,
+        )
+        self._lifecycle_events = (*self._lifecycle_events, event)
+        self._status = to_status
+        self._finished_at = transition_timestamp if to_status in _TERMINAL_STATUSES else None
+
+    def _verify_lifecycle_witness(self) -> None:
+        _verify_lifecycle_events(
+            key=self._lifecycle_key,
+            run_id=self._run_id,
+            started_at=self._started_at,
+            events=self._lifecycle_events,
+            current_status=self._status,
+            current_finished_at=self._finished_at,
+        )
+
+
+def _create_lifecycle_event(
+    *,
+    key: bytes,
+    run_id: str,
+    started_at: str,
+    sequence: int,
+    from_status: RunStatus,
+    to_status: RunStatus,
+    transition_timestamp: str,
+    transition_kind: _LifecycleTransitionKind,
+    previous_witness: str,
+) -> _LifecycleEvent:
+    payload = "\x1f".join(
+        (
+            str(sequence),
+            run_id,
+            started_at,
+            from_status.value,
+            to_status.value,
+            transition_timestamp,
+            transition_kind.value,
+            previous_witness,
+        )
+    ).encode("utf-8")
+    witness = hmac.new(key, payload, hashlib.sha256).hexdigest()
+    return _LifecycleEvent(
+        sequence=sequence,
+        from_status=from_status,
+        to_status=to_status,
+        transition_timestamp=transition_timestamp,
+        transition_kind=transition_kind,
+        previous_witness=previous_witness,
+        witness=witness,
+    )
+
+
+def _verify_lifecycle_events(
+    *,
+    key: bytes,
+    run_id: str,
+    started_at: str,
+    events: object,
+    current_status: object,
+    current_finished_at: object,
+) -> None:
+    if not isinstance(key, bytes) or len(key) != 32 or not isinstance(events, tuple) or not events:
+        _raise_lifecycle_witness_error()
+
+    allowed = {
+        (RunStatus.CREATED, RunStatus.RUNNING): _LifecycleTransitionKind.START,
+        (RunStatus.CREATED, RunStatus.FAILED): _LifecycleTransitionKind.FAIL,
+        (RunStatus.RUNNING, RunStatus.COMPLETED): _LifecycleTransitionKind.COMPLETE,
+        (
+            RunStatus.RUNNING,
+            RunStatus.COMPLETED_WITH_WARNINGS,
+        ): _LifecycleTransitionKind.COMPLETE_WITH_WARNINGS,
+        (RunStatus.RUNNING, RunStatus.FAILED): _LifecycleTransitionKind.FAIL,
+    }
+    derived_status = RunStatus.CREATED
+    derived_finished_at: str | None = None
+    previous_witness = "0" * 64
+    previous_timestamp = _parse_lifecycle_timestamp(started_at)
+
+    for sequence, event in enumerate(events):
+        if (
+            not isinstance(event, _LifecycleEvent)
+            or type(event.sequence) is not int
+            or not isinstance(event.from_status, RunStatus)
+            or not isinstance(event.to_status, RunStatus)
+            or not isinstance(event.transition_timestamp, str)
+            or not isinstance(event.transition_kind, _LifecycleTransitionKind)
+            or not isinstance(event.previous_witness, str)
+            or _SHA256_PATTERN.fullmatch(event.previous_witness) is None
+            or not isinstance(event.witness, str)
+            or _SHA256_PATTERN.fullmatch(event.witness) is None
+        ):
+            _raise_lifecycle_witness_error()
+        expected = _create_lifecycle_event(
+            key=key,
+            run_id=run_id,
+            started_at=started_at,
+            sequence=sequence,
+            from_status=event.from_status,
+            to_status=event.to_status,
+            transition_timestamp=event.transition_timestamp,
+            transition_kind=event.transition_kind,
+            previous_witness=previous_witness,
+        )
+        if (
+            event.sequence != sequence
+            or event.previous_witness != previous_witness
+            or not hmac.compare_digest(event.witness, expected.witness)
+        ):
+            _raise_lifecycle_witness_error()
+
+        timestamp = _parse_lifecycle_timestamp(event.transition_timestamp)
+        if timestamp < previous_timestamp:
+            _raise_lifecycle_witness_error()
+        if sequence == 0:
+            if (
+                event.from_status is not RunStatus.CREATED
+                or event.to_status is not RunStatus.CREATED
+                or event.transition_kind is not _LifecycleTransitionKind.INITIALIZE
+                or event.transition_timestamp != started_at
+            ):
+                _raise_lifecycle_witness_error()
+        else:
+            if derived_status in _TERMINAL_STATUSES:
+                _raise_lifecycle_witness_error()
+            expected_kind = allowed.get((derived_status, event.to_status))
+            if (
+                event.from_status is not derived_status
+                or event.transition_kind is not expected_kind
+            ):
+                _raise_lifecycle_witness_error()
+            derived_status = event.to_status
+            if derived_status in _TERMINAL_STATUSES:
+                derived_finished_at = event.transition_timestamp
+        previous_timestamp = timestamp
+        previous_witness = event.witness
+
+    if current_status is not derived_status or current_finished_at != derived_finished_at:
+        _raise_lifecycle_witness_error()
+
+
+def _parse_lifecycle_timestamp(value: object) -> datetime:
+    if not isinstance(value, str):
+        _raise_lifecycle_witness_error()
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        _raise_lifecycle_witness_error()
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        _raise_lifecycle_witness_error()
+    return parsed
+
+
+def _raise_lifecycle_witness_error() -> NoReturn:
+    _raise(
+        ManifestErrorCode.MANIFEST_INVALID_TRANSITION,
+        "Manifest lifecycle transition witness is invalid.",
+    )
 
 
 def create_run_manifest(**fields: object) -> RunManifestBuilder:
@@ -713,8 +1004,10 @@ def verify_manifest(
     manifest: RunManifest | Mapping[str, object],
     *,
     artifact_root: Path,
+    expected_registry_snapshot: RunRegistrySnapshot,
+    expected_action_engine_version: str,
 ) -> ManifestVerificationResult:
-    """Verify canonical schema, lifecycle, privacy, provenance, and artifact bytes."""
+    """Strictly verify canonical content against trusted runtime registry provenance."""
 
     if isinstance(manifest, Mapping):
         _validate_serialized_safety(manifest)
@@ -723,7 +1016,7 @@ def verify_manifest(
             manifest if isinstance(manifest, RunManifest) else RunManifest.model_validate(manifest)
         )
         serialized = canonical.to_canonical_dict()
-    except (ValidationError, ValueError, TypeError):
+    except (AttributeError, ValidationError, ValueError, TypeError):
         raise ManifestError(
             ManifestErrorCode.MANIFEST_SCHEMA_INVALID,
             "Run manifest does not satisfy the canonical schema.",
@@ -735,6 +1028,11 @@ def verify_manifest(
     _validate_inputs(canonical.inputs)
     _validate_contract(canonical.contract)
     _validate_registries(canonical.registries)
+    _validate_registry_binding(
+        canonical.registries,
+        expected_registry_snapshot,
+        action_engine_version=expected_action_engine_version,
+    )
     _validate_randomness(canonical.randomness)
     _validate_gpt(canonical.gpt)
     _validate_gpt_fallbacks(canonical.gpt, canonical.fallbacks)
@@ -828,14 +1126,14 @@ def collect_environment_provenance(
     )
 
 
-def registries_from_snapshot(
+def manifest_registries_from_snapshot(
     snapshot: RunRegistrySnapshot,
     *,
     action_engine_version: str,
 ) -> ManifestRegistries:
     """Map only frozen RunManifest registry fields; unrelated hashes are not invented."""
 
-    if (
+    if not isinstance(snapshot, RunRegistrySnapshot) or (
         not isinstance(action_engine_version, str)
         or _SEMVER_PATTERN.fullmatch(action_engine_version) is None
     ):
@@ -843,10 +1141,10 @@ def registries_from_snapshot(
             ManifestErrorCode.MANIFEST_REGISTRY_INVALID,
             "Action-engine version must be semantic version metadata.",
         )
-    candidate = snapshot.candidate_registry
-    protocols = snapshot.protocol_registry
-    protocol_versions = {entry.object_id: entry.version for entry in protocols.payload.entries}
     try:
+        candidate = snapshot.candidate_registry
+        protocols = snapshot.protocol_registry
+        protocol_versions = {entry.object_id: entry.version for entry in protocols.payload.entries}
         result = ManifestRegistries.model_validate(
             {
                 "candidate_registry": {
@@ -858,13 +1156,139 @@ def registries_from_snapshot(
                 "action_engine_version": action_engine_version,
             }
         )
-    except (ValidationError, ValueError, TypeError):
+    except (AttributeError, ValidationError, ValueError, TypeError):
         raise ManifestError(
             ManifestErrorCode.MANIFEST_REGISTRY_INVALID,
             "Registry snapshot cannot populate the frozen manifest fields.",
         ) from None
     _validate_registries(result)
     return result
+
+
+def registries_from_snapshot(
+    snapshot: RunRegistrySnapshot,
+    *,
+    action_engine_version: str,
+) -> ManifestRegistries:
+    """Compatibility alias for the explicit manifest registry projection."""
+
+    return manifest_registries_from_snapshot(
+        snapshot,
+        action_engine_version=action_engine_version,
+    )
+
+
+def _validate_registry_binding(
+    registries: ManifestRegistries,
+    snapshot: RunRegistrySnapshot,
+    *,
+    action_engine_version: str,
+) -> None:
+    expected = manifest_registries_from_snapshot(
+        snapshot,
+        action_engine_version=action_engine_version,
+    )
+    if registries.to_canonical_dict() != expected.to_canonical_dict():
+        _raise(
+            ManifestErrorCode.MANIFEST_REGISTRY_INVALID,
+            "Manifest registries do not match the expected immutable run snapshot.",
+        )
+
+
+def _create_registry_binding(
+    *,
+    key: bytes,
+    snapshot: RunRegistrySnapshot,
+    action_engine_version: str,
+    expected_registries: ManifestRegistries,
+) -> _RegistryBinding:
+    if (
+        not isinstance(key, bytes)
+        or len(key) != 32
+        or not isinstance(snapshot, RunRegistrySnapshot)
+        or not isinstance(expected_registries, ManifestRegistries)
+        or not isinstance(snapshot.combined_canonical_sha256, str)
+        or _SHA256_PATTERN.fullmatch(snapshot.combined_canonical_sha256) is None
+    ):
+        _raise_registry_binding_error()
+    projected = manifest_registries_from_snapshot(
+        snapshot,
+        action_engine_version=action_engine_version,
+    )
+    if projected.to_canonical_dict() != expected_registries.to_canonical_dict():
+        _raise_registry_binding_error()
+    witness = _registry_binding_witness(
+        key=key,
+        snapshot=snapshot,
+        action_engine_version=action_engine_version,
+        expected_registries=expected_registries,
+    )
+    return _RegistryBinding(
+        snapshot=snapshot,
+        action_engine_version=action_engine_version,
+        expected_registries=expected_registries,
+        witness=witness,
+    )
+
+
+def _registry_binding_witness(
+    *,
+    key: bytes,
+    snapshot: RunRegistrySnapshot,
+    action_engine_version: str,
+    expected_registries: ManifestRegistries,
+) -> str:
+    try:
+        payload_sha256 = canonical_sha256(
+            {
+                "snapshot_combined_canonical_sha256": snapshot.combined_canonical_sha256,
+                "action_engine_version": action_engine_version,
+                "manifest_registries": expected_registries.to_canonical_dict(),
+            }
+        )
+    except (AttributeError, CanonicalJsonError, TypeError, ValueError):
+        _raise_registry_binding_error()
+    payload = f"run-registry-binding\x1f{payload_sha256}".encode("utf-8")
+    return hmac.new(key, payload, hashlib.sha256).hexdigest()
+
+
+def _verify_registry_binding_state(
+    registries: ManifestRegistries,
+    *,
+    key: object,
+    binding: object,
+) -> None:
+    if (
+        not isinstance(key, bytes)
+        or len(key) != 32
+        or not isinstance(binding, _RegistryBinding)
+        or not isinstance(binding.witness, str)
+        or _SHA256_PATTERN.fullmatch(binding.witness) is None
+    ):
+        _raise_registry_binding_error()
+    projected = manifest_registries_from_snapshot(
+        binding.snapshot,
+        action_engine_version=binding.action_engine_version,
+    )
+    if projected.to_canonical_dict() != binding.expected_registries.to_canonical_dict():
+        _raise_registry_binding_error()
+    expected_witness = _registry_binding_witness(
+        key=key,
+        snapshot=binding.snapshot,
+        action_engine_version=binding.action_engine_version,
+        expected_registries=binding.expected_registries,
+    )
+    if not hmac.compare_digest(binding.witness, expected_witness):
+        _raise_registry_binding_error()
+    if registries.to_canonical_dict() != binding.expected_registries.to_canonical_dict():
+        _raise_registry_binding_error()
+
+
+def _raise_registry_binding_error() -> NoReturn:
+    _raise(
+        ManifestErrorCode.MANIFEST_REGISTRY_INVALID,
+        "Manifest registries do not match the expected immutable run snapshot.",
+    )
 
 
 def verify_registered_artifact(
@@ -1985,6 +2409,7 @@ __all__ = [
     "fail_run",
     "finalize_manifest",
     "manifest_sha256",
+    "manifest_registries_from_snapshot",
     "parse_checksum_inventory",
     "register_artifact",
     "register_fallback",

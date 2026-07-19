@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+import riec_guard.telemetry.manifest as manifest_module
 from riec_guard.riec.registry import load_run_registry_snapshot
 from riec_guard.settings import SeedSettings
 from riec_guard.telemetry.manifest import (
@@ -17,6 +19,7 @@ from riec_guard.telemetry.manifest import (
     RunManifestBuilder,
     collect_code_provenance,
     collect_environment_provenance,
+    manifest_registries_from_snapshot,
     manifest_sha256,
     parse_checksum_inventory,
     registries_from_snapshot,
@@ -42,6 +45,8 @@ INPUT_HASH = "2" * 64
 CONTRACT_HASH = "3" * 64
 CANDIDATE_HASH = "4" * 64
 FROZEN_MANIFEST_HASH = "b4d580adf97b38c32abaca9f195502ab838bb591dad11f3c23475de5b2c16700"
+REGISTRY_SNAPSHOT = load_run_registry_snapshot()
+ACTION_ENGINE_VERSION = "1.0.0"
 
 
 def _example_payload() -> dict[str, object]:
@@ -67,15 +72,10 @@ def _base_builder(
     manifest_registries = (
         registries
         if registries is not None
-        else {
-            "candidate_registry": {
-                "id": "fill-structural-candidates.v1",
-                "version": "1.0.0",
-                "sha256": CANDIDATE_HASH,
-            },
-            "protocol_versions": {"H1_empirical_strict_tail": "1.0.0"},
-            "action_engine_version": "1.0.0",
-        }
+        else manifest_registries_from_snapshot(
+            REGISTRY_SNAPSHOT,
+            action_engine_version=ACTION_ENGINE_VERSION,
+        )
     )
     builder = RunManifestBuilder(
         run_id=run_id,
@@ -98,6 +98,8 @@ def _base_builder(
             "schema_version": "1.0.0",
             "confirmation_status": "confirmed",
         },
+        registry_snapshot=REGISTRY_SNAPSHOT,
+        action_engine_version=ACTION_ENGINE_VERSION,
         registries=manifest_registries,  # type: ignore[arg-type]
         randomness={
             "global_seed": 20260718,
@@ -158,6 +160,26 @@ def _expect_code(error: pytest.ExceptionInfo[ManifestError], code: ManifestError
     assert error.value.code is code
 
 
+def _verify_manifest(
+    manifest: RunManifest | dict[str, object],
+    *,
+    artifact_root: Path,
+):
+    return verify_manifest(
+        manifest,
+        artifact_root=artifact_root,
+        expected_registry_snapshot=REGISTRY_SNAPSHOT,
+        expected_action_engine_version=ACTION_ENGINE_VERSION,
+    )
+
+
+def _registry_payload() -> dict[str, object]:
+    return manifest_registries_from_snapshot(
+        REGISTRY_SNAPSHOT,
+        action_engine_version=ACTION_ENGINE_VERSION,
+    ).to_canonical_dict()
+
+
 def test_frozen_run_manifest_example_validates_through_canonical_model_and_schema() -> None:
     manifest = RunManifest.model_validate(_example_payload())
     assert manifest.schema_version == "1.0.0"
@@ -213,7 +235,7 @@ def test_valid_created_running_completed_lifecycle_passes(tmp_path: Path) -> Non
     manifest, artifact_root, _ = _completed_manifest(tmp_path)
     assert manifest.status is RunStatus.COMPLETED
     assert (
-        verify_manifest(manifest, artifact_root=artifact_root).artifact_verification.artifact_count
+        _verify_manifest(manifest, artifact_root=artifact_root).artifact_verification.artifact_count
         == 1
     )
 
@@ -256,7 +278,7 @@ def test_nonterminal_manifest_with_finished_time_is_rejected(tmp_path: Path) -> 
     manifest, artifact_root, _ = _completed_manifest(tmp_path)
     invalid = manifest.model_copy(update={"status": RunStatus.RUNNING})
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(invalid, artifact_root=artifact_root)
+        _verify_manifest(invalid, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_TIMESTAMP_INVALID)
 
 
@@ -264,7 +286,7 @@ def test_terminal_manifest_without_finished_time_is_rejected(tmp_path: Path) -> 
     manifest, artifact_root, _ = _completed_manifest(tmp_path)
     invalid = manifest.model_copy(update={"finished_at": None})
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(invalid, artifact_root=artifact_root)
+        _verify_manifest(invalid, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_TIMESTAMP_INVALID)
 
 
@@ -280,6 +302,137 @@ def test_changed_terminal_transition_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ManifestError) as caught:
         builder.complete(finished_at="2026-07-19T00:02:00Z")
     _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_public_lifecycle_records_created_running_completed_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    assert len(builder._lifecycle_events) == 1
+    builder.start().complete(finished_at=FINISHED_AT)
+    assert tuple(event.to_status for event in builder._lifecycle_events) == (
+        RunStatus.CREATED,
+        RunStatus.RUNNING,
+        RunStatus.COMPLETED,
+    )
+    assert builder.finalize().manifest.status is RunStatus.COMPLETED
+
+
+def test_public_created_failed_lifecycle_records_terminal_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.fail(finished_at=FINISHED_AT)
+    assert tuple(event.to_status for event in builder._lifecycle_events) == (
+        RunStatus.CREATED,
+        RunStatus.FAILED,
+    )
+    assert builder.finalize().manifest.status is RunStatus.FAILED
+
+
+def test_direct_status_and_finished_at_mutation_fails_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder._status = RunStatus.COMPLETED
+    builder._finished_at = FINISHED_AT
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_direct_status_only_mutation_fails_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder._status = RunStatus.COMPLETED
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_direct_finished_at_only_mutation_fails_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder._finished_at = FINISHED_AT
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_altered_lifecycle_event_fails_closed(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    terminal = replace(
+        builder._lifecycle_events[-1],
+        transition_timestamp="2026-07-19T00:02:00Z",
+    )
+    builder._lifecycle_events = (*builder._lifecycle_events[:-1], terminal)
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_truncated_lifecycle_history_fails_closed(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    builder._lifecycle_events = builder._lifecycle_events[:-1]
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_skipped_running_transition_history_fails_closed(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    builder._lifecycle_events = (
+        builder._lifecycle_events[0],
+        builder._lifecycle_events[-1],
+    )
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_appended_terminal_reopen_history_fails_closed(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    builder._lifecycle_events = (*builder._lifecycle_events, builder._lifecycle_events[1])
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_foreign_builder_lifecycle_history_fails_closed(tmp_path: Path) -> None:
+    first, _ = _prepare_builder(tmp_path / "first")
+    second, _ = _prepare_builder(tmp_path / "second")
+    second._lifecycle_events = first._lifecycle_events
+    with pytest.raises(ManifestError) as caught:
+        second.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_post_finalization_lifecycle_mutation_is_detected(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    builder.finalize()
+    builder._finished_at = "2026-07-19T00:02:00Z"
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+
+
+def test_identical_terminal_transition_does_not_append_witness(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    builder.start().complete(finished_at=FINISHED_AT)
+    before = builder._lifecycle_events
+    assert builder.complete(finished_at=FINISHED_AT) is builder
+    assert builder._lifecycle_events == before
+
+
+def test_private_transition_appender_without_authority_fails_closed(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    with pytest.raises(ManifestError) as caught:
+        builder._apply_lifecycle_transition(
+            to_status=RunStatus.FAILED,
+            transition_timestamp=FINISHED_AT,
+            transition_kind=manifest_module._LifecycleTransitionKind.FAIL,
+        )
+    _expect_code(caught, ManifestErrorCode.MANIFEST_INVALID_TRANSITION)
+    assert builder.status is RunStatus.CREATED
+    assert builder.finished_at is None
+    assert len(builder._lifecycle_events) == 1
 
 
 def test_public_builtin_mode_privacy_input_combination_passes(tmp_path: Path) -> None:
@@ -348,7 +501,7 @@ def test_gpt_prompt_or_message_field_cannot_enter_manifest(tmp_path: Path) -> No
     payload = manifest.to_canonical_dict()
     payload["gpt"]["prompt"] = "confidential"  # type: ignore[index]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_SECRET_CONTENT)
 
 
@@ -601,6 +754,148 @@ def test_unsupported_extra_registry_fields_are_not_invented() -> None:
     }
 
 
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("id", "other-candidate-registry.v1"),
+        ("version", "9.9.9"),
+        ("sha256", "0" * 64),
+    ],
+)
+def test_builder_rejects_candidate_metadata_not_bound_to_snapshot(
+    tmp_path: Path,
+    field: str,
+    replacement: str,
+) -> None:
+    payload = _registry_payload()
+    raw_candidate = payload["candidate_registry"]
+    assert isinstance(raw_candidate, dict)
+    candidate = dict(raw_candidate)
+    candidate[field] = replacement
+    payload["candidate_registry"] = candidate
+    with pytest.raises(ManifestError) as caught:
+        _base_builder(tmp_path, registries=payload)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+    assert replacement not in str(caught.value)
+    assert str(REPOSITORY_ROOT) not in str(caught.value)
+
+
+def test_builder_rejects_altered_protocol_version(tmp_path: Path) -> None:
+    payload = _registry_payload()
+    raw_versions = payload["protocol_versions"]
+    assert isinstance(raw_versions, dict)
+    versions = dict(raw_versions)
+    versions[sorted(versions)[0]] = "9.9.9"
+    payload["protocol_versions"] = versions
+    with pytest.raises(ManifestError) as caught:
+        _base_builder(tmp_path, registries=payload)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_builder_rejects_missing_protocol_id(tmp_path: Path) -> None:
+    payload = _registry_payload()
+    raw_versions = payload["protocol_versions"]
+    assert isinstance(raw_versions, dict)
+    versions = dict(raw_versions)
+    versions.pop(sorted(versions)[0])
+    payload["protocol_versions"] = versions
+    with pytest.raises(ManifestError) as caught:
+        _base_builder(tmp_path, registries=payload)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_builder_rejects_false_action_engine_metadata(tmp_path: Path) -> None:
+    payload = _registry_payload()
+    payload["action_engine_version"] = "9.9.9"
+    with pytest.raises(ManifestError) as caught:
+        _base_builder(tmp_path, registries=payload)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_builder_rejects_extra_protocol_or_unrelated_config_hash(tmp_path: Path) -> None:
+    payload = _registry_payload()
+    raw_versions = payload["protocol_versions"]
+    assert isinstance(raw_versions, dict)
+    versions = dict(raw_versions)
+    versions["policy_registry." + REGISTRY_SNAPSHOT.policy_registry.canonical_json_sha256] = (
+        REGISTRY_SNAPSHOT.policy_registry.version
+    )
+    payload["protocol_versions"] = versions
+    with pytest.raises(ManifestError) as caught:
+        _base_builder(tmp_path, registries=payload)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_snapshot_registry_projection_is_repeatedly_deterministic() -> None:
+    first = manifest_registries_from_snapshot(
+        REGISTRY_SNAPSHOT,
+        action_engine_version=ACTION_ENGINE_VERSION,
+    )
+    second = manifest_registries_from_snapshot(
+        REGISTRY_SNAPSHOT,
+        action_engine_version=ACTION_ENGINE_VERSION,
+    )
+    assert first == second
+    assert first.to_canonical_json() == second.to_canonical_json()
+
+
+def test_constructor_registry_binding_witness_rejects_private_anchor_replacement(
+    tmp_path: Path,
+) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    false_candidate = replace(
+        REGISTRY_SNAPSHOT.candidate_registry,
+        canonical_json_sha256="0" * 64,
+    )
+    false_snapshot = replace(REGISTRY_SNAPSHOT, candidate_registry=false_candidate)
+    false_registries = manifest_registries_from_snapshot(
+        false_snapshot,
+        action_engine_version=ACTION_ENGINE_VERSION,
+    )
+    builder._registry_binding = replace(
+        builder._registry_binding,
+        snapshot=false_snapshot,
+        expected_registries=false_registries,
+    )
+    builder._registries = false_registries
+    builder.start().complete(finished_at=FINISHED_AT)
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_strict_verifier_rejects_mismatched_trusted_action_version(tmp_path: Path) -> None:
+    manifest, artifact_root, _ = _completed_manifest(tmp_path)
+    with pytest.raises(ManifestError) as caught:
+        verify_manifest(
+            manifest,
+            artifact_root=artifact_root,
+            expected_registry_snapshot=REGISTRY_SNAPSHOT,
+            expected_action_engine_version="9.9.9",
+        )
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_finalization_rechecks_private_registry_state_against_snapshot(tmp_path: Path) -> None:
+    builder, _ = _prepare_builder(tmp_path)
+    payload = builder._registries.to_canonical_dict()
+    payload["candidate_registry"]["sha256"] = "0" * 64  # type: ignore[index]
+    builder._registries = ManifestRegistries.model_validate(payload)
+    builder.start().complete(finished_at=FINISHED_AT)
+    with pytest.raises(ManifestError) as caught:
+        builder.finalize()
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
+def test_strict_verifier_rejects_serialized_registry_mismatch(tmp_path: Path) -> None:
+    manifest, artifact_root, _ = _completed_manifest(tmp_path)
+    payload = manifest.to_canonical_dict()
+    payload["registries"]["candidate_registry"]["sha256"] = "0" * 64  # type: ignore[index]
+    with pytest.raises(ManifestError) as caught:
+        _verify_manifest(payload, artifact_root=artifact_root)
+    _expect_code(caught, ManifestErrorCode.MANIFEST_REGISTRY_INVALID)
+
+
 def test_protocol_version_key_with_secret_suffix_is_rejected(tmp_path: Path) -> None:
     artifact_root = tmp_path / RUN_ID / "artifacts"
     artifact_root.mkdir(parents=True)
@@ -626,6 +921,8 @@ def test_protocol_version_key_with_secret_suffix_is_rejected(tmp_path: Path) -> 
                 "schema_version": "1.0.0",
                 "confirmation_status": "confirmed",
             },
+            registry_snapshot=REGISTRY_SNAPSHOT,
+            action_engine_version=ACTION_ENGINE_VERSION,
             registries={
                 "candidate_registry": {
                     "id": "fill-structural-candidates.v1",
@@ -747,20 +1044,14 @@ def test_all_numeric_canonical_run_and_contract_ids_remain_valid(tmp_path: Path)
 
 
 def test_manifest_builder_detaches_mutable_registry_alias(tmp_path: Path) -> None:
-    alias = {"H1_empirical_strict_tail": "1.0.0"}
-    registries = ManifestRegistries.model_validate(
-        {
-            "candidate_registry": {
-                "id": "fill-structural-candidates.v1",
-                "version": "1.0.0",
-                "sha256": CANDIDATE_HASH,
-            },
-            "protocol_versions": alias,
-            "action_engine_version": "1.0.0",
-        }
-    ).model_copy(update={"protocol_versions": alias})
+    expected = registries_from_snapshot(
+        REGISTRY_SNAPSHOT,
+        action_engine_version=ACTION_ENGINE_VERSION,
+    )
+    alias = dict(expected.protocol_versions)
+    registries = expected.model_copy(update={"protocol_versions": alias})
     builder, artifact_root = _base_builder(tmp_path, registries=registries)
-    alias["H2_gaussian_residual_tail"] = "1.0.0"
+    alias["unregistered_protocol"] = "9.9.9"
     builder.register_input(
         artifact_id="fixture.v1",
         sha256=INPUT_HASH,
@@ -776,7 +1067,7 @@ def test_manifest_builder_detaches_mutable_registry_alias(tmp_path: Path) -> Non
     )
     builder.start().complete(finished_at=FINISHED_AT)
     versions = builder.finalize().manifest.registries.protocol_versions
-    assert set(versions) == {"H1_empirical_strict_tail"}
+    assert dict(versions) == dict(expected.protocol_versions)
 
 
 def test_absolute_artifact_path_is_rejected(tmp_path: Path) -> None:
@@ -1133,7 +1424,7 @@ def test_standalone_checksum_api_rejects_arbitrary_artifact_root(tmp_path: Path)
 
 def test_final_manifest_with_verified_artifacts_validates(tmp_path: Path) -> None:
     manifest, artifact_root, _ = _completed_manifest(tmp_path)
-    result = verify_manifest(manifest, artifact_root=artifact_root)
+    result = _verify_manifest(manifest, artifact_root=artifact_root)
     assert result.artifact_verification.verified_artifact_ids == ("result.json",)
 
 
@@ -1189,7 +1480,7 @@ def test_serialized_manifest_rejects_raw_rows(tmp_path: Path) -> None:
     payload = manifest.to_canonical_dict()
     payload["raw_rows"] = [[1, 2]]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_SECRET_CONTENT)
 
 
@@ -1205,7 +1496,7 @@ def test_serialized_manifest_rejects_direct_identifier(tmp_path: Path) -> None:
         }
     ]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_SECRET_CONTENT)
 
 
@@ -1221,7 +1512,7 @@ def test_serialized_manifest_rejects_absolute_local_path(tmp_path: Path) -> None
         }
     ]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_ABSOLUTE_PATH)
 
 
@@ -1237,7 +1528,7 @@ def test_serialized_manifest_rejects_root_path_token(tmp_path: Path) -> None:
         }
     ]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_ABSOLUTE_PATH)
 
 
@@ -1253,7 +1544,7 @@ def test_serialized_manifest_rejects_secret(tmp_path: Path) -> None:
         }
     ]
     with pytest.raises(ManifestError) as caught:
-        verify_manifest(payload, artifact_root=artifact_root)
+        _verify_manifest(payload, artifact_root=artifact_root)
     _expect_code(caught, ManifestErrorCode.MANIFEST_SECRET_CONTENT)
 
 
@@ -1319,6 +1610,8 @@ def test_gpt_api_other_than_responses_is_rejected(tmp_path: Path) -> None:
             "schema_version": "1.0.0",
             "confirmation_status": "confirmed",
         },
+        "registry_snapshot": REGISTRY_SNAPSHOT,
+        "action_engine_version": ACTION_ENGINE_VERSION,
         "registries": {
             "candidate_registry": {
                 "id": "fill-structural-candidates.v1",
