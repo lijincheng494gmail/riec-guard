@@ -11,6 +11,7 @@ from riec_guard.contract.profiler import (
     ProfilerConfig,
     ProfilingHints,
     SemanticHint,
+    _looks_like_direct_identifier_value,
     _scan_normalized_csv,
     profile_dataset,
 )
@@ -21,6 +22,14 @@ from riec_guard.settings import RuntimeSettings
 
 def _repository(tmp_path: Path) -> SourceRepository:
     return SourceRepository(RuntimeSettings(ephemeral_root=tmp_path / "ephemeral-runs"))
+
+
+def _synthetic_email_address(local_part: str) -> str:
+    return "".join((local_part, chr(64), "Example", chr(46), "Invalid"))
+
+
+def _synthetic_phone_contact(suffix: str) -> str:
+    return "".join(("+", "1", " (", "202", ") ", "555", "-", suffix))
 
 
 def _upload(
@@ -178,6 +187,33 @@ def test_mixed_ambiguous_column_remains_string(tmp_path: Path) -> None:
     assert result.column_profiles[1].numeric_summary is None
 
 
+def test_r01_value_shape_detector_is_bounded_and_conservative() -> None:
+    accepted_shapes = (
+        _synthetic_email_address("Mixed.Case+tag"),
+        _synthetic_phone_contact("0101"),
+        "".join(("202", "-", "555", "-", "0102")),
+        "".join(("+", "1202", "555", "0103")),
+    )
+    rejected_shapes = (
+        "A",
+        "B",
+        "control",
+        "treatment",
+        "2026-07-18",
+        "123-456",
+        "".join(("+", "1" * 16)),
+        "".join(("1" * 10,)),
+        "BATCH-1234567",
+        f"prefix {_synthetic_email_address('embedded')}",
+        _synthetic_email_address("x" * 65),
+    )
+
+    if not all(_looks_like_direct_identifier_value(value) for value in accepted_shapes):
+        pytest.fail("a supported bounded direct-identifier shape was not recognized")
+    if any(_looks_like_direct_identifier_value(value) for value in rejected_shapes):
+        pytest.fail("a benign or out-of-policy value was classified as a direct identifier")
+
+
 def test_numeric_summary_and_even_median_are_deterministic(tmp_path: Path) -> None:
     result = _profile(tmp_path, b"quantity\n1\n2\n100\n101\n")
     assert isinstance(result, DatasetProfile)
@@ -278,12 +314,21 @@ def test_explicit_row_id_hint_detects_duplicates_without_echoing_value(tmp_path:
     assert "SECRET-DUPLICATE" not in error.to_canonical_json()
 
 
-def test_repeated_process_ids_do_not_trigger_row_identity_failure(tmp_path: Path) -> None:
-    result = _profile(
-        tmp_path,
-        (b"batch_id,product_id,stream_id,shift_id,quantity\nB1,P1,S1,D,1\nB1,P1,S1,D,2\n"),
-    )
+def test_r01_process_id_suffixes_are_not_personal_identifier_evidence(tmp_path: Path) -> None:
+    rows = [
+        f"B{index % 2 + 1},P{index % 2 + 1},S{index % 2 + 1},D{index % 2 + 1},{index + 1}"
+        for index in range(10)
+    ]
+    payload = (
+        "batch_id,product_id,stream_id,shift_id,quantity\n" + "\n".join(rows) + "\n"
+    ).encode()
+    result = _profile(tmp_path, payload)
     assert isinstance(result, DatasetProfile)
+    by_name = {column.name: column for column in result.column_profiles}
+    assert by_name["batch_id"].safe_examples == ("B1", "B2")
+    assert by_name["product_id"].safe_examples == ("P1", "P2")
+    assert by_name["stream_id"].safe_examples == ("S1", "S2")
+    assert by_name["shift_id"].safe_examples == ("D1", "D2")
 
 
 def test_invalid_materialized_normalized_csv_returns_structured_error(tmp_path: Path) -> None:

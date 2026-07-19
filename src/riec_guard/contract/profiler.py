@@ -26,6 +26,36 @@ _INTEGER_PATTERN = re.compile(r"[+-]?[0-9]+\Z")
 _NUMBER_PATTERN = re.compile(r"[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?\Z")
 _NONFINITE_PATTERN = re.compile(r"[+-]?(?:nan|inf|infinity)\Z", re.IGNORECASE)
 _SAFE_HEADER_TOKEN_PATTERN = re.compile(r"[^a-z0-9]+")
+_EMAIL_LOCAL_ATOM = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+"
+_EMAIL_SHAPE_PATTERN = re.compile(
+    rf"{_EMAIL_LOCAL_ATOM}(?:\.{_EMAIL_LOCAL_ATOM})*@"
+    r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+    r"(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+\Z",
+    re.IGNORECASE | re.ASCII,
+)
+_PHONE_ALLOWED_SHAPE_PATTERN = re.compile(
+    r"\+?(?:[0-9]|\()[0-9() -]*[0-9]\Z",
+    re.ASCII,
+)
+_PHONE_GROUPED_SHAPE_PATTERN = re.compile(
+    r"[0-9]{1,4}(?:[ -][0-9]{1,4}){1,4}\Z",
+    re.ASCII,
+)
+_PHONE_PARENTHESIZED_SHAPE_PATTERN = re.compile(
+    r"(?:[0-9]{1,3}[ -]?)?\([0-9]{2,4}\)(?:[ -]?[0-9]{2,4}){1,3}\Z",
+    re.ASCII,
+)
+_PHONE_PLUS_CONTIGUOUS_SHAPE_PATTERN = re.compile(r"[0-9]{7,15}\Z", re.ASCII)
+_YEAR_FIRST_DATE_SHAPE_PATTERN = re.compile(
+    r"[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\Z",
+    re.ASCII,
+)
+_MAX_EMAIL_SHAPE_LENGTH = 254
+_MAX_EMAIL_LOCAL_PART_LENGTH = 64
+_MAX_EMAIL_DOMAIN_LENGTH = 253
+_MAX_PHONE_SHAPE_LENGTH = 40
+_MIN_PHONE_DIGITS = 7
+_MAX_PHONE_DIGITS = 15
 _DATETIME_NAME_HINTS = frozenset(
     {
         "date",
@@ -599,7 +629,9 @@ def _build_column_profile(
     row_count: int,
     config: ProfilerConfig,
 ) -> ColumnProfile:
-    is_identifier = _looks_like_direct_identifier(column.name)
+    is_identifier = _looks_like_direct_identifier(column.name) or any(
+        _looks_like_direct_identifier_value(value) for value in column.nonmissing_values
+    )
     numeric_summary = None
     safe_examples: tuple[object, ...] = ()
     if column.dtype in {ColumnDataType.INTEGER, ColumnDataType.NUMBER} and not is_identifier:
@@ -656,6 +688,49 @@ def _looks_like_direct_identifier(name: str) -> bool:
     return bool(tokens & _DIRECT_IDENTIFIER_TERMS) or any(
         term in normalized for term in _DIRECT_IDENTIFIER_TERMS
     )
+
+
+def _looks_like_direct_identifier_value(value: str) -> bool:
+    return _looks_like_email_address(value) or _looks_like_phone_contact(value)
+
+
+def _looks_like_email_address(value: str) -> bool:
+    if not 6 <= len(value) <= _MAX_EMAIL_SHAPE_LENGTH or value.count("@") != 1:
+        return False
+    local_part, domain = value.rsplit("@", 1)
+    if (
+        not local_part
+        or len(local_part) > _MAX_EMAIL_LOCAL_PART_LENGTH
+        or not domain
+        or len(domain) > _MAX_EMAIL_DOMAIN_LENGTH
+    ):
+        return False
+    top_level_label = domain.rsplit(".", 1)[-1]
+    if len(top_level_label) < 2 or not any(
+        "a" <= character.casefold() <= "z" for character in top_level_label
+    ):
+        return False
+    return _EMAIL_SHAPE_PATTERN.fullmatch(value) is not None
+
+
+def _looks_like_phone_contact(value: str) -> bool:
+    if not 7 <= len(value) <= _MAX_PHONE_SHAPE_LENGTH:
+        return False
+    if _parse_datetime(value) or _YEAR_FIRST_DATE_SHAPE_PATTERN.fullmatch(value):
+        return False
+    if _PHONE_ALLOWED_SHAPE_PATTERN.fullmatch(value) is None:
+        return False
+    digit_count = sum(character in "0123456789" for character in value)
+    if not _MIN_PHONE_DIGITS <= digit_count <= _MAX_PHONE_DIGITS:
+        return False
+
+    has_leading_plus = value.startswith("+")
+    body = value[1:] if has_leading_plus else value
+    if _PHONE_GROUPED_SHAPE_PATTERN.fullmatch(body):
+        return True
+    if _PHONE_PARENTHESIZED_SHAPE_PATTERN.fullmatch(body):
+        return True
+    return bool(has_leading_plus and _PHONE_PLUS_CONTIGUOUS_SHAPE_PATTERN.fullmatch(body))
 
 
 def _invalid_csv(
