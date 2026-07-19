@@ -133,6 +133,40 @@ class ConfirmedBy(StrictStrEnum):
     NONE = "none"
 
 
+class ContractRuntimeContext(StrictStrEnum):
+    HOSTED_PUBLIC = "hosted_public"
+    LOCAL_PRIVATE = "local_private"
+
+
+class ContractValidationCode(StrictStrEnum):
+    CONTRACT_SCHEMA_INVALID = "CONTRACT_SCHEMA_INVALID"
+    CONTRACT_SOURCE_PROFILE_MISMATCH = "CONTRACT_SOURCE_PROFILE_MISMATCH"
+    CONTRACT_COLUMN_NOT_FOUND = "CONTRACT_COLUMN_NOT_FOUND"
+    CONTRACT_QUANTITY_NOT_NUMERIC = "CONTRACT_QUANTITY_NOT_NUMERIC"
+    CONTRACT_QUANTITY_UNCONFIRMED = "CONTRACT_QUANTITY_UNCONFIRMED"
+    CONTRACT_GROUP_UNCONFIRMED = "CONTRACT_GROUP_UNCONFIRMED"
+    CONTRACT_GROUP_MISSING_VALUES = "CONTRACT_GROUP_MISSING_VALUES"
+    CONTRACT_GROUP_CONSTANT = "CONTRACT_GROUP_CONSTANT"
+    CONTRACT_INSUFFICIENT_GROUPS = "CONTRACT_INSUFFICIENT_GROUPS"
+    CONTRACT_UNIT_UNKNOWN = "CONTRACT_UNIT_UNKNOWN"
+    CONTRACT_UNIT_SEMANTICS_MISMATCH = "CONTRACT_UNIT_SEMANTICS_MISMATCH"
+    CONTRACT_CONVERSION_INVALID = "CONTRACT_CONVERSION_INVALID"
+    CONTRACT_POLICY_ORDER_INVALID = "CONTRACT_POLICY_ORDER_INVALID"
+    CONTRACT_ALPHA_INVALID = "CONTRACT_ALPHA_INVALID"
+    CONTRACT_SHIFT_RANGE_INVALID = "CONTRACT_SHIFT_RANGE_INVALID"
+    CONTRACT_RESOLUTION_INVALID = "CONTRACT_RESOLUTION_INVALID"
+    CONTRACT_EVIDENCE_PROFILE_INVALID = "CONTRACT_EVIDENCE_PROFILE_INVALID"
+    CONTRACT_ORDERING_INCONSISTENT = "CONTRACT_ORDERING_INCONSISTENT"
+    CONTRACT_ORDER_UNCONFIRMED = "CONTRACT_ORDER_UNCONFIRMED"
+    CONTRACT_RIEC_SETTINGS_INVALID = "CONTRACT_RIEC_SETTINGS_INVALID"
+    CONTRACT_PRIVACY_MODE_INVALID = "CONTRACT_PRIVACY_MODE_INVALID"
+    CONTRACT_UNRESOLVED_BLOCKING = "CONTRACT_UNRESOLVED_BLOCKING"
+    CONTRACT_UNRESOLVED_WARNING = "CONTRACT_UNRESOLVED_WARNING"
+    CONTRACT_ASSUMPTION_UNCONFIRMED = "CONTRACT_ASSUMPTION_UNCONFIRMED"
+    CONTRACT_CONFIRMATION_INCOMPLETE = "CONTRACT_CONFIRMATION_INCOMPLETE"
+    CONTRACT_INVALID_TRANSITION = "CONTRACT_INVALID_TRANSITION"
+
+
 class ContractCompiler(CanonicalModel):
     mode: CompilerMode
     model: LimitedString100 | None
@@ -306,6 +340,38 @@ class AuditContract(CanonicalModel):
         optional_field()
     )
     confirmation: ContractConfirmation
+
+
+class ContractIdentity(CanonicalModel):
+    canonical_contract_sha256: Sha256
+    contract_id: ContractId
+
+
+class ContractValidationIssue(CanonicalModel):
+    code: ContractValidationCode
+    severity: IssueSeverity
+    field_path: LimitedString200
+    message: LimitedString500
+    recoverable: bool
+    user_action: LimitedString500 | None
+
+
+class ContractValidationReport(CanonicalModel):
+    valid: bool
+    blocking_errors: ImmutableTuple[ContractValidationIssue]
+    warnings: ImmutableTuple[ContractValidationIssue]
+    confirmation_required: UniqueTuple[LimitedString200]
+    canonical_contract_sha256: Sha256 | None
+    contract_id: ContractId | None
+    analysis_permitted: bool
+    g1_eligible: bool
+
+
+class ContractTransitionResult(CanonicalModel):
+    contract: AuditContract
+    validation: ContractValidationReport
+    transitioned: bool
+    idempotent: bool
 
 
 class ColumnDataType(StrictStrEnum):
@@ -795,6 +861,12 @@ __all__ = [
     "CANONICAL_MODEL_REGISTRY",
     "CandidateRegistry",
     "ClaimAudit",
+    "ContractIdentity",
+    "ContractRuntimeContext",
+    "ContractTransitionResult",
+    "ContractValidationCode",
+    "ContractValidationIssue",
+    "ContractValidationReport",
     "DatasetProfile",
     "ProtocolResult",
     "ReportDraft",
