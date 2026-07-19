@@ -1,85 +1,127 @@
 {
+  "index_version": "1.0.0",
   "phase": "D",
   "architecture_version": "1.0.0",
-  "canonical_artifact_schemas": [
+  "entries": [
     {
-      "file": "AUDIT_CONTRACT_SCHEMA.json",
-      "example": "examples/audit_contract.example.json",
-      "purpose": "Confirmed analysis contract and evidence boundary"
-    },
-    {
-      "file": "DATASET_PROFILE_SCHEMA.json",
-      "example": "examples/dataset_profile.example.json",
-      "purpose": "Redacted deterministic source profile"
-    },
-    {
-      "file": "CANDIDATE_REGISTRY_SCHEMA.json",
-      "example": "examples/candidate_registry.example.json",
-      "purpose": "Finite frozen predictive candidate library"
-    },
-    {
-      "file": "RIEC_SELECTION_SCHEMA.json",
-      "example": "examples/riec_selection.example.json",
-      "purpose": "Candidate ledger, selection, near ties and switchpoints"
-    },
-    {
-      "file": "PROTOCOL_RESULT_SCHEMA.json",
-      "example": "examples/protocol_results.example.json",
-      "purpose": "Typed D0/H1/H2/H3/U1/G1/G2 results"
-    },
-    {
-      "file": "ACTION_DECISION_SCHEMA.json",
-      "example": "examples/action_decision.example.json",
+      "logical_name": "action_decision",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/ACTION_DECISION_SCHEMA.json",
+      "example_path": "schemas/examples/action_decision.example.json",
+      "schema_version": "1.0.0",
       "purpose": "Mutually exclusive action state and bounded pilot reference"
     },
     {
-      "file": "EVIDENCE_LEDGER_SCHEMA.json",
-      "example": "examples/evidence_ledger.example.json",
+      "logical_name": "audit_contract",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/AUDIT_CONTRACT_SCHEMA.json",
+      "example_path": "schemas/examples/audit_contract.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Confirmed analysis contract and evidence boundary"
+    },
+    {
+      "logical_name": "candidate_registry",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/CANDIDATE_REGISTRY_SCHEMA.json",
+      "example_path": "schemas/examples/candidate_registry.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Finite frozen predictive candidate library"
+    },
+    {
+      "logical_name": "claim_audit",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/CLAIM_AUDIT_SCHEMA.json",
+      "example_path": "schemas/examples/claim_audit.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Deterministic and GPT claim audit with final export decision"
+    },
+    {
+      "logical_name": "dataset_profile",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/DATASET_PROFILE_SCHEMA.json",
+      "example_path": "schemas/examples/dataset_profile.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Redacted deterministic source profile"
+    },
+    {
+      "logical_name": "error_envelope",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/ERROR_ENVELOPE_SCHEMA.json",
+      "example_path": "schemas/examples/error_envelope.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Structured user-safe failure envelope"
+    },
+    {
+      "logical_name": "evidence_ledger",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/EVIDENCE_LEDGER_SCHEMA.json",
+      "example_path": "schemas/examples/evidence_ledger.example.json",
+      "schema_version": "1.0.0",
       "purpose": "Immutable evidence items and provenance graph"
     },
     {
-      "file": "REPORT_DRAFT_SCHEMA.json",
-      "example": "examples/report_draft.example.json",
+      "logical_name": "protocol_result",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/PROTOCOL_RESULT_SCHEMA.json",
+      "example_path": "schemas/examples/protocol_results.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Typed D0, H1, H2, H3, U1, G1, and G2 results"
+    },
+    {
+      "logical_name": "report_draft",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/REPORT_DRAFT_SCHEMA.json",
+      "example_path": "schemas/examples/report_draft.example.json",
+      "schema_version": "1.0.0",
       "purpose": "Evidence-linked report templates and numeric bindings"
     },
     {
-      "file": "CLAIM_AUDIT_SCHEMA.json",
-      "example": "examples/claim_audit.example.json",
-      "purpose": "Deterministic+GPT claim audit and export decision"
+      "logical_name": "riec_selection",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/RIEC_SELECTION_SCHEMA.json",
+      "example_path": "schemas/examples/riec_selection.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Candidate ledger, selection, near ties, and switchpoints"
     },
     {
-      "file": "RUN_MANIFEST_SCHEMA.json",
-      "example": "examples/run_manifest.example.json",
-      "purpose": "End-to-end run, model, environment, privacy and artifact provenance"
+      "logical_name": "run_manifest",
+      "kind": "canonical",
+      "schema_path": "schemas/canonical/RUN_MANIFEST_SCHEMA.json",
+      "example_path": "schemas/examples/run_manifest.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "End-to-end run, model, environment, privacy, and artifact provenance"
     },
     {
-      "file": "ERROR_ENVELOPE_SCHEMA.json",
-      "example": "examples/error_envelope.example.json",
-      "purpose": "Structured user-safe failures"
+      "logical_name": "gpt_audit_contract_draft",
+      "kind": "gpt_projection",
+      "schema_path": "schemas/gpt/GPT_AUDIT_CONTRACT_DRAFT_SCHEMA.json",
+      "example_path": "schemas/examples/gpt_audit_contract_draft.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Model-facing draft contract transport projection",
+      "promotes_to": "audit_contract"
+    },
+    {
+      "logical_name": "gpt_claim_audit",
+      "kind": "gpt_projection",
+      "schema_path": "schemas/gpt/GPT_CLAIM_AUDIT_SCHEMA.json",
+      "example_path": "schemas/examples/gpt_claim_audit.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Model-facing claim classification transport projection",
+      "promotes_to": "claim_audit"
+    },
+    {
+      "logical_name": "gpt_report_draft",
+      "kind": "gpt_projection",
+      "schema_path": "schemas/gpt/GPT_REPORT_DRAFT_SCHEMA.json",
+      "example_path": "schemas/examples/gpt_report_draft.example.json",
+      "schema_version": "1.0.0",
+      "purpose": "Model-facing evidence-bound memo transport projection",
+      "promotes_to": "report_draft"
     }
   ],
-  "model_facing_projection_schemas": [
-    {
-      "file": "GPT_AUDIT_CONTRACT_DRAFT_SCHEMA.json",
-      "example": "examples/gpt_audit_contract_draft.example.json",
-      "promotes_to": "AUDIT_CONTRACT_SCHEMA.json"
-    },
-    {
-      "file": "GPT_REPORT_DRAFT_SCHEMA.json",
-      "example": "examples/gpt_report_draft.example.json",
-      "promotes_to": "REPORT_DRAFT_SCHEMA.json"
-    },
-    {
-      "file": "GPT_CLAIM_AUDIT_SCHEMA.json",
-      "example": "examples/gpt_claim_audit.example.json",
-      "promotes_to": "CLAIM_AUDIT_SCHEMA.json"
-    }
-  ],
-  "tool_catalog": "GPT56_READ_ONLY_TOOL_CATALOG.json",
-  "validator": "validation/validate_phase_d_schemas.py",
   "notes": [
     "Canonical schemas are authoritative for persisted audit artifacts.",
-    "Model-facing projections are intentionally smaller and require deterministic promotion and validation.",
-    "Live OpenAI API acceptance of projection schemas remains a Phase E implementation smoke test."
+    "GPT projections are narrower transport contracts and require deterministic promotion into canonical artifacts.",
+    "GPT projection versions are index metadata and are not injected into model output objects."
   ]
 }
