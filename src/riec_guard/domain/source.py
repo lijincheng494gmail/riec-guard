@@ -4,6 +4,7 @@ import hashlib
 import os
 import re
 import shutil
+import stat
 import uuid
 from collections.abc import Collection
 from dataclasses import dataclass, replace
@@ -165,13 +166,44 @@ class SourceRepository:
         *,
         built_in_key: str,
         display_name: str,
+        payload: bytes | bytearray | memoryview | BinaryIO | None = None,
     ) -> SourceSpec:
-        self._require_run(run_id)
+        roots = self._require_run(run_id)
         source = SourceSpec.from_built_in(
             run_id=run_id,
             built_in_key=built_in_key,
             display_name=display_name,
         )
+        if payload is not None:
+            normalized = normalize_csv_upload(
+                payload,
+                display_name=f"{built_in_key}.csv",
+                media_type="text/csv",
+                limits=self.limits,
+            )
+            source = replace(
+                source,
+                size_bytes=len(normalized.raw_bytes),
+                data_row_count=normalized.data_row_count,
+                column_count=normalized.column_count,
+                raw_sha256=hashlib.sha256(normalized.raw_bytes).hexdigest(),
+                normalized_sha256=hashlib.sha256(normalized.normalized_bytes).hexdigest(),
+            )
+            normalized_name = source.storage_filename(".csv")
+            normalized_path = roots.normalized / normalized_name
+            try:
+                _write_new_file(
+                    roots.normalized,
+                    normalized_name,
+                    normalized.normalized_bytes,
+                )
+            except OSError:
+                normalized_path.unlink(missing_ok=True)
+                raise ApplicationError(
+                    ErrorCode.STORAGE_FAILURE,
+                    "The built-in source could not be stored safely.",
+                    run_id=run_id,
+                ) from None
         self._sources[(run_id, source.source_id)] = source
         return source
 
@@ -256,6 +288,32 @@ class SourceRepository:
                 run_id=run_id,
             )
         return source.normalized_storage_path(roots, ".csv")
+
+    def read_normalized_bytes(self, run_id: str, source_id: str) -> bytes:
+        """Read one run-owned normalized source without exposing a filesystem path."""
+
+        roots = self._require_run(run_id)
+        source = self.get_source(run_id, source_id)
+        if source.normalized_sha256 is None:
+            raise ApplicationError(
+                ErrorCode.SOURCE_NOT_FOUND,
+                "The requested source has no normalized data.",
+                source_id=source.source_id,
+                run_id=run_id,
+            )
+        try:
+            return _read_regular_file(
+                roots.normalized,
+                source.storage_filename(".csv"),
+                max_bytes=self.limits.max_file_size_bytes,
+            )
+        except OSError:
+            raise ApplicationError(
+                ErrorCode.SOURCE_NOT_FOUND,
+                "The requested normalized source was not found.",
+                source_id=source.source_id,
+                run_id=run_id,
+            ) from None
 
     def delete_run(self, run_id: str) -> bool:
         """Delete one validated child without following a run-root symlink."""
@@ -391,6 +449,31 @@ def _write_new_file(directory: Path, filename: str, data: bytes) -> None:
             handle.write(data)
     finally:
         os.close(directory_fd)
+
+
+def _read_regular_file(directory: Path, filename: str, *, max_bytes: int) -> bytes:
+    if Path(filename).name != filename:
+        raise OSError("unsafe generated filename")
+    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    file_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    directory_fd = os.open(directory, directory_flags)
+    try:
+        file_fd = os.open(filename, file_flags, dir_fd=directory_fd)
+        try:
+            metadata = os.fstat(file_fd)
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > max_bytes:
+                raise OSError("normalized source is not a bounded regular file")
+            with os.fdopen(file_fd, "rb") as handle:
+                file_fd = -1
+                data = handle.read(max_bytes + 1)
+        finally:
+            if file_fd >= 0:
+                os.close(file_fd)
+    finally:
+        os.close(directory_fd)
+    if len(data) > max_bytes:
+        raise OSError("normalized source exceeds the configured limit")
+    return data
 
 
 def _run_not_found(run_id: str | None = None) -> ApplicationError:
