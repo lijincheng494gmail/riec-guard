@@ -1,0 +1,314 @@
+{
+  "catalog_id": "riec-guard-public-scenarios.v1",
+  "catalog_version": "1.0.0",
+  "classification": "public_synthetic",
+  "content_sha256": "decb3631b261978dfeb9deb95615988f34a7d493aaf58af91cff0a73018ad90a",
+  "fixed_order": [
+    "stable_symmetric",
+    "heavy_tail_particulate",
+    "batch_drift_change_point"
+  ],
+  "limitations": [
+    "These scenarios do not establish performance in a real production facility.",
+    "Recorded results are not evidence of achieved savings.",
+    "Recorded results are not a compliance determination.",
+    "The gallery does not establish universal validation."
+  ],
+  "purpose": "Three deterministic synthetic mechanism demonstrations for reproducible RIEC Guard software behavior.",
+  "scenarios": [
+    {
+      "classification": "public_synthetic",
+      "csv_asset": "data/public_synthetic/stable_symmetric.csv",
+      "design": {
+        "deployment_group_count": 12,
+        "expected_tail_count_per_product": 5.28,
+        "product_count": 2,
+        "replicates_per_cell": 11,
+        "row_count": 1056,
+        "rows_per_group": 88,
+        "rows_per_product": 528,
+        "shift_count": 2,
+        "stream_count": 2
+      },
+      "display_name": "Stable symmetric process",
+      "domain_hint": "Public packaged-volume demonstration",
+      "expectation": {
+        "action_state": "pilot_range_supported",
+        "g1_state": "pass",
+        "g2_action_supported": true,
+        "h2_more_optimistic_than_h1_or_h3": false,
+        "positive_pilot_interval": true,
+        "protocol_conflict": false
+      },
+      "limitation": "Illustrative public synthetic data only; the scenario is not evidence of performance, savings, or suitability in an operating process.",
+      "mechanism_description": "Balanced additive product, stream, and shift effects with bounded, symmetric, near-Gaussian process noise and no deployment-group drift.",
+      "mechanism_parameters": [
+        {
+          "name": "base_quantity",
+          "unit": "mL",
+          "value": 250.25
+        },
+        {
+          "name": "product_effect_magnitude",
+          "unit": "mL",
+          "value": 0.04
+        },
+        {
+          "name": "stream_effect_magnitude",
+          "unit": "mL",
+          "value": 0.03
+        },
+        {
+          "name": "shift_effect_magnitude",
+          "unit": "mL",
+          "value": 0.06
+        },
+        {
+          "name": "primary_noise_scale",
+          "unit": "mL",
+          "value": 0.012
+        },
+        {
+          "name": "wide_noise_scale",
+          "unit": "mL",
+          "value": 0.024
+        },
+        {
+          "name": "wide_component_count_per_group",
+          "unit": "count",
+          "value": 6.0
+        },
+        {
+          "name": "noise_clip",
+          "unit": "mL",
+          "value": 0.045
+        }
+      ],
+      "policy": {
+        "alpha": 0.01,
+        "bootstrap_replicates": 200,
+        "bootstrap_seed": 20260718,
+        "lower_limit": 249.5,
+        "maximum_screening_shift": 0.5,
+        "measurement_resolution": 0.01,
+        "min_expected_tail_count": 5,
+        "minimum_actionable_shift": 0.05,
+        "nominal_quantity": 250.0,
+        "profile_id": "public-demo-policy.v1",
+        "protocol_spread_tolerance": 0.5,
+        "unit": "mL"
+      },
+      "scenario_id": "stable_symmetric",
+      "scenario_version": "1.0.0",
+      "seed": 20260731
+    },
+    {
+      "classification": "public_synthetic",
+      "csv_asset": "data/public_synthetic/heavy_tail_particulate.csv",
+      "design": {
+        "deployment_group_count": 12,
+        "expected_tail_count_per_product": 5.28,
+        "product_count": 2,
+        "replicates_per_cell": 11,
+        "row_count": 1056,
+        "rows_per_group": 88,
+        "rows_per_product": 528,
+        "shift_count": 2,
+        "stream_count": 2
+      },
+      "display_name": "Heavy-tail particulate variation",
+      "domain_hint": "Public packaged-volume demonstration",
+      "expectation": {
+        "action_state": "pilot_only_conservative",
+        "g1_state": "pass",
+        "g2_action_supported": true,
+        "h2_more_optimistic_than_h1_or_h3": true,
+        "positive_pilot_interval": true,
+        "protocol_conflict": true
+      },
+      "limitation": "The bounded shocks are a transparent synthetic mechanism, not a calibrated model of any material, package, line, or operating process.",
+      "mechanism_description": "Stable additive group structure with bounded central noise and one bounded low-side particulate-like shock in every deployment group.",
+      "mechanism_parameters": [
+        {
+          "name": "base_quantity",
+          "unit": "mL",
+          "value": 250.25
+        },
+        {
+          "name": "product_effect_magnitude",
+          "unit": "mL",
+          "value": 0.04
+        },
+        {
+          "name": "stream_effect_magnitude",
+          "unit": "mL",
+          "value": 0.03
+        },
+        {
+          "name": "shift_effect_magnitude",
+          "unit": "mL",
+          "value": 0.1
+        },
+        {
+          "name": "central_noise_scale",
+          "unit": "mL",
+          "value": 0.012
+        },
+        {
+          "name": "central_noise_clip",
+          "unit": "mL",
+          "value": 0.03
+        },
+        {
+          "name": "low_side_shock",
+          "unit": "mL",
+          "value": -0.3
+        },
+        {
+          "name": "shocks_per_group",
+          "unit": "count",
+          "value": 1.0
+        }
+      ],
+      "policy": {
+        "alpha": 0.01,
+        "bootstrap_replicates": 200,
+        "bootstrap_seed": 20260718,
+        "lower_limit": 249.5,
+        "maximum_screening_shift": 0.5,
+        "measurement_resolution": 0.01,
+        "min_expected_tail_count": 5,
+        "minimum_actionable_shift": 0.05,
+        "nominal_quantity": 250.0,
+        "profile_id": "public-demo-policy.v1",
+        "protocol_spread_tolerance": 0.5,
+        "unit": "mL"
+      },
+      "scenario_id": "heavy_tail_particulate",
+      "scenario_version": "1.0.0",
+      "seed": 20260801
+    },
+    {
+      "classification": "public_synthetic",
+      "csv_asset": "data/public_synthetic/batch_drift_change_point.csv",
+      "design": {
+        "deployment_group_count": 12,
+        "expected_tail_count_per_product": 5.28,
+        "product_count": 2,
+        "replicates_per_cell": 11,
+        "row_count": 1056,
+        "rows_per_group": 88,
+        "rows_per_product": 528,
+        "shift_count": 2,
+        "stream_count": 2
+      },
+      "display_name": "Ordered deployment-group drift",
+      "domain_hint": "Public packaged-volume demonstration",
+      "expectation": {
+        "action_state": "diagnose_process_first",
+        "g1_state": "material_warning",
+        "g2_action_supported": true,
+        "h2_more_optimistic_than_h1_or_h3": false,
+        "positive_pilot_interval": false,
+        "protocol_conflict": true
+      },
+      "limitation": "The ordered trend is intentionally visible for a screening demonstration; it is not certified process-control evidence or a causal diagnosis.",
+      "mechanism_description": "A deterministic bounded downward deployment-group trend is superimposed on small symmetric noise and stable product, stream, and shift effects.",
+      "mechanism_parameters": [
+        {
+          "name": "base_quantity",
+          "unit": "mL",
+          "value": 250.42
+        },
+        {
+          "name": "product_effect_magnitude",
+          "unit": "mL",
+          "value": 0.04
+        },
+        {
+          "name": "stream_effect_magnitude",
+          "unit": "mL",
+          "value": 0.03
+        },
+        {
+          "name": "shift_effect_magnitude",
+          "unit": "mL",
+          "value": 0.05
+        },
+        {
+          "name": "initial_group_effect",
+          "unit": "mL",
+          "value": 0.16
+        },
+        {
+          "name": "terminal_group_effect",
+          "unit": "mL",
+          "value": -0.16
+        },
+        {
+          "name": "primary_noise_scale",
+          "unit": "mL",
+          "value": 0.012
+        },
+        {
+          "name": "wide_noise_scale",
+          "unit": "mL",
+          "value": 0.024
+        },
+        {
+          "name": "wide_noise_fraction",
+          "unit": "fraction",
+          "value": 0.08
+        },
+        {
+          "name": "noise_clip",
+          "unit": "mL",
+          "value": 0.045
+        }
+      ],
+      "policy": {
+        "alpha": 0.01,
+        "bootstrap_replicates": 200,
+        "bootstrap_seed": 20260718,
+        "lower_limit": 249.5,
+        "maximum_screening_shift": 0.5,
+        "measurement_resolution": 0.01,
+        "min_expected_tail_count": 5,
+        "minimum_actionable_shift": 0.05,
+        "nominal_quantity": 250.0,
+        "profile_id": "public-demo-policy.v1",
+        "protocol_spread_tolerance": 0.5,
+        "unit": "mL"
+      },
+      "scenario_id": "batch_drift_change_point",
+      "scenario_version": "1.0.0",
+      "seed": 20260802
+    }
+  ],
+  "schema_version": "1.0.0",
+  "shared_design": {
+    "deployment_group_count": 12,
+    "expected_tail_count_per_product": 5.28,
+    "product_count": 2,
+    "replicates_per_cell": 11,
+    "row_count": 1056,
+    "rows_per_group": 88,
+    "rows_per_product": 528,
+    "shift_count": 2,
+    "stream_count": 2
+  },
+  "shared_policy": {
+    "alpha": 0.01,
+    "bootstrap_replicates": 200,
+    "bootstrap_seed": 20260718,
+    "lower_limit": 249.5,
+    "maximum_screening_shift": 0.5,
+    "measurement_resolution": 0.01,
+    "min_expected_tail_count": 5,
+    "minimum_actionable_shift": 0.05,
+    "nominal_quantity": 250.0,
+    "profile_id": "public-demo-policy.v1",
+    "protocol_spread_tolerance": 0.5,
+    "unit": "mL"
+  }
+}

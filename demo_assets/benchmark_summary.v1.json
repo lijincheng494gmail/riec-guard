@@ -1,0 +1,333 @@
+{
+  "artifact_classification": "recorded_deterministic_output",
+  "bootstrap_replicates": 200,
+  "bootstrap_seed": 20260718,
+  "catalog_sha256": "decb3631b261978dfeb9deb95615988f34a7d493aaf58af91cff0a73018ad90a",
+  "content_sha256": "008c3d576e563cfce2bfe6c9137bbc283130834a00f154364da92194d5bf9a76",
+  "generated_by": "accepted_production_default_service",
+  "limitations": [
+    "This file records deterministic outputs produced by the accepted production-default service.",
+    "The fast asset check validates bytes, identities, and recorded metadata without live analysis.",
+    "These synthetic results are not evidence of achieved factory savings.",
+    "These synthetic results are not a compliance determination.",
+    "The recorded gallery does not establish universal validation."
+  ],
+  "live_recomputation_on_check": false,
+  "scenario_records_sha256": "fe31074a363f68fdf4f8194fa754449963bd20efdfb424a8217a1da3e5b70b52",
+  "scenarios": [
+    {
+      "action_decision_canonical_sha256_normalized_run_id": "31f17cbeef431421651c37f1f28f7c8b5fa5e2453886ae82a752a3919a7fdf00",
+      "action_evidence_id": "EV-ACTION-9AFD68981FB8",
+      "action_state": "pilot_range_supported",
+      "contract_id": "AC-32BEB590173B",
+      "contract_sha256": "32beb590173b5ddcb6256540854b756743c639ee96ed7937d06ed3bbbff8f442",
+      "dataset_sha256": "61406ba1733671cbe91350925e4e23a011bbd6b49c90d9d59ab16a74c23c8b5f",
+      "decisive_reason": "SUPPORTED_PILOT_REFERENCE",
+      "deployment_group_count": 12,
+      "equivalence_set": [
+        "M4_product_stream_shift"
+      ],
+      "evidence_chain": [
+        {
+          "component": "RIEC",
+          "content_sha256": "d76197eb38a71f1bd8331229b44f1d250b676f6d1d64347e6777e7fca88ed490",
+          "evidence_id": "EV-RIEC-D76197EB38A7",
+          "parent_evidence_ids": []
+        },
+        {
+          "component": "PROTOCOL",
+          "content_sha256": "bb6d6a975c1ddcc7a4d3808803df4f8f4555f16b9bb9dddff2e3b9143033e0b4",
+          "evidence_id": "EV-PROTOCOL-BB6D6A975C1D",
+          "parent_evidence_ids": [
+            "EV-RIEC-D76197EB38A7"
+          ]
+        },
+        {
+          "component": "ACTION",
+          "content_sha256": "9afd68981fb85284c32793163454a298ae7fe12123dace737f4b0293a2213ac1",
+          "evidence_id": "EV-ACTION-9AFD68981FB8",
+          "parent_evidence_ids": [
+            "EV-PROTOCOL-BB6D6A975C1D",
+            "EV-RIEC-D76197EB38A7"
+          ]
+        }
+      ],
+      "expected_tail_count_per_product": 5.28,
+      "g1_state": "pass",
+      "g2": {
+        "action_supported": true,
+        "alpha": 0.01,
+        "expected_tail_count": 5.28,
+        "min_expected_tail_count": 5.0,
+        "minimum_product_groups": 12,
+        "minimum_product_rows": 528,
+        "protocol_id": "G2_evidence_sufficiency_gate",
+        "status": "ok"
+      },
+      "h1": {
+        "lower_bound": 0.5999999999999943,
+        "protocol_id": "H1_group_empirical_quantile",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5999999999999943
+      },
+      "h2": {
+        "lower_bound": 0.5,
+        "protocol_id": "H2_gaussian_residual_tail",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5
+      },
+      "h3": {
+        "lower_bound": 0.5,
+        "protocol_id": "H3_student_t_residual_tail",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5
+      },
+      "pilot_max": 0.4,
+      "pilot_min": 0.15,
+      "policy_profile_id": "public-demo-policy.v1",
+      "product_count": 2,
+      "protocol_conflict": false,
+      "protocol_evidence_id": "EV-PROTOCOL-BB6D6A975C1D",
+      "protocol_result_canonical_sha256_normalized_run_id": "5eab733e3882616f4de226226411a429fc9180b9b4b327de3377504052765510",
+      "protocol_spread": 0.09999999999999432,
+      "record_sha256": "adfac649037052867835c2f7131d53ec16936a4cb6726068007c4ef1d8affb7a",
+      "riec_evidence_id": "EV-RIEC-D76197EB38A7",
+      "riec_near_tie": false,
+      "riec_runner_up": "M6_product_stream_shift_time",
+      "riec_selection_canonical_sha256_normalized_run_id": "15e429d3c0db74fa86ccc6f787def8b9be0e109891935a974870ca7da8084797",
+      "riec_winner": "M4_product_stream_shift",
+      "row_count": 1056,
+      "rows_per_product": 528,
+      "scenario_id": "stable_symmetric",
+      "scenario_version": "1.0.0",
+      "u1": {
+        "failed_replicates": 0,
+        "lower_bound": 0.5,
+        "protocol_id": "U1_group_bootstrap_bound",
+        "requested_replicates": 200,
+        "seed": 20260718,
+        "status": "ok",
+        "successful_replicates": 200
+      },
+      "unit": "mL"
+    },
+    {
+      "action_decision_canonical_sha256_normalized_run_id": "00d11415d6786a11146a6e044986f76b6c7ca7052db36767d41097f250f2a8ba",
+      "action_evidence_id": "EV-ACTION-1EA71EC19D9C",
+      "action_state": "pilot_only_conservative",
+      "contract_id": "AC-1B81A7FA19D2",
+      "contract_sha256": "1b81a7fa19d2f4ce23c7b9a857c6aa59f4d67fb9c7edb66a6210f25943542a1d",
+      "dataset_sha256": "9e92d093d625de0df94c201daed84752a73791ce07eda92a16e39b9a7e22562f",
+      "decisive_reason": "PARAMETRIC_DIAGNOSTIC_MATERIAL",
+      "deployment_group_count": 12,
+      "equivalence_set": [
+        "M4_product_stream_shift"
+      ],
+      "evidence_chain": [
+        {
+          "component": "RIEC",
+          "content_sha256": "10d5ff4951228532429df829d91adf293a37c9ed25e01b992a311a3fece943c6",
+          "evidence_id": "EV-RIEC-10D5FF495122",
+          "parent_evidence_ids": []
+        },
+        {
+          "component": "PROTOCOL",
+          "content_sha256": "f50c82a718c08984b43c70606626571b7cb447a6ad588e69ea1030bc7a5c5078",
+          "evidence_id": "EV-PROTOCOL-F50C82A718C0",
+          "parent_evidence_ids": [
+            "EV-RIEC-10D5FF495122"
+          ]
+        },
+        {
+          "component": "ACTION",
+          "content_sha256": "1ea71ec19d9c5c5399de90ab0816aea128ef2a13cf11ac6d83cf4f911d356896",
+          "evidence_id": "EV-ACTION-1EA71EC19D9C",
+          "parent_evidence_ids": [
+            "EV-PROTOCOL-F50C82A718C0",
+            "EV-RIEC-10D5FF495122"
+          ]
+        }
+      ],
+      "expected_tail_count_per_product": 5.28,
+      "g1_state": "pass",
+      "g2": {
+        "action_supported": true,
+        "alpha": 0.01,
+        "expected_tail_count": 5.28,
+        "min_expected_tail_count": 5.0,
+        "minimum_product_groups": 12,
+        "minimum_product_rows": 528,
+        "protocol_id": "G2_evidence_sufficiency_gate",
+        "status": "ok"
+      },
+      "h1": {
+        "lower_bound": 0.28999999999999204,
+        "protocol_id": "H1_group_empirical_quantile",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.28999999999999204
+      },
+      "h2": {
+        "lower_bound": 0.5,
+        "protocol_id": "H2_gaussian_residual_tail",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5
+      },
+      "h3": {
+        "lower_bound": 0.5,
+        "protocol_id": "H3_student_t_residual_tail",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5
+      },
+      "pilot_max": 0.14,
+      "pilot_min": 0.05,
+      "policy_profile_id": "public-demo-policy.v1",
+      "product_count": 2,
+      "protocol_conflict": true,
+      "protocol_evidence_id": "EV-PROTOCOL-F50C82A718C0",
+      "protocol_result_canonical_sha256_normalized_run_id": "c97c4268af75d843fdc2a3e6b9acc109452bcc56c90be0f8bc665047307727a1",
+      "protocol_spread": 0.21000000000000796,
+      "record_sha256": "fde32d5de4f55fbf82ce282ccad3ab72929335f71e0d0a4cd12f3ea6b9cb5397",
+      "riec_evidence_id": "EV-RIEC-10D5FF495122",
+      "riec_near_tie": false,
+      "riec_runner_up": "M6_product_stream_shift_time",
+      "riec_selection_canonical_sha256_normalized_run_id": "e0f2bcfccb77739542fe68fbbc283f031d41969f8ab9d2663356dd99d6bef50e",
+      "riec_winner": "M4_product_stream_shift",
+      "row_count": 1056,
+      "rows_per_product": 528,
+      "scenario_id": "heavy_tail_particulate",
+      "scenario_version": "1.0.0",
+      "u1": {
+        "failed_replicates": 0,
+        "lower_bound": 0.28999999999999204,
+        "protocol_id": "U1_group_bootstrap_bound",
+        "requested_replicates": 200,
+        "seed": 20260718,
+        "status": "ok",
+        "successful_replicates": 200
+      },
+      "unit": "mL"
+    },
+    {
+      "action_decision_canonical_sha256_normalized_run_id": "a0a562446f4aa9ac588a398955d7cef83e388d6340b92407b5a9b5c704a723fa",
+      "action_evidence_id": "EV-ACTION-E479FEC65F28",
+      "action_state": "diagnose_process_first",
+      "contract_id": "AC-25E614341F1B",
+      "contract_sha256": "25e614341f1b99c09210bbfe74b04bf447fc6a912c80c13d511d2d49b92684b2",
+      "dataset_sha256": "fe3a280f6bd084e59b533083d97826d719eec58b8c01840102a6367a455abf24",
+      "decisive_reason": "ORDERED_STABILITY_MATERIAL_WARNING",
+      "deployment_group_count": 12,
+      "equivalence_set": [
+        "M6_product_stream_shift_time"
+      ],
+      "evidence_chain": [
+        {
+          "component": "RIEC",
+          "content_sha256": "cb3c35267de0376dba8864c02d164f5eca556547af66e08515ec8f1f11eaf921",
+          "evidence_id": "EV-RIEC-CB3C35267DE0",
+          "parent_evidence_ids": []
+        },
+        {
+          "component": "PROTOCOL",
+          "content_sha256": "56553a98703d92c9351567064b3af4219edc225ff9ba2b24641fabfa264418f9",
+          "evidence_id": "EV-PROTOCOL-56553A98703D",
+          "parent_evidence_ids": [
+            "EV-RIEC-CB3C35267DE0"
+          ]
+        },
+        {
+          "component": "ACTION",
+          "content_sha256": "e479fec65f28195a488e33916a058c017ce831155f56722bee013ca3fdf40f55",
+          "evidence_id": "EV-ACTION-E479FEC65F28",
+          "parent_evidence_ids": [
+            "EV-PROTOCOL-56553A98703D",
+            "EV-RIEC-CB3C35267DE0"
+          ]
+        }
+      ],
+      "expected_tail_count_per_product": 5.28,
+      "g1_state": "material_warning",
+      "g2": {
+        "action_supported": true,
+        "alpha": 0.01,
+        "expected_tail_count": 5.28,
+        "min_expected_tail_count": 5.0,
+        "minimum_product_groups": 12,
+        "minimum_product_rows": 528,
+        "protocol_id": "G2_evidence_sufficiency_gate",
+        "status": "ok"
+      },
+      "h1": {
+        "lower_bound": 0.6399999999999864,
+        "protocol_id": "H1_group_empirical_quantile",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.6599999999999966
+      },
+      "h2": {
+        "lower_bound": 0.5,
+        "protocol_id": "H2_gaussian_residual_tail",
+        "status": "warning",
+        "unit": "mL",
+        "value": 0.5
+      },
+      "h3": {
+        "lower_bound": null,
+        "protocol_id": "H3_student_t_residual_tail",
+        "status": "ineligible",
+        "unit": "mL",
+        "value": null
+      },
+      "pilot_max": null,
+      "pilot_min": null,
+      "policy_profile_id": "public-demo-policy.v1",
+      "product_count": 2,
+      "protocol_conflict": true,
+      "protocol_evidence_id": "EV-PROTOCOL-56553A98703D",
+      "protocol_result_canonical_sha256_normalized_run_id": "7fc00614a4412d819c884865cbc0fcaf8f543558a308dba047f8248023f1f94d",
+      "protocol_spread": 0.13999999999998636,
+      "record_sha256": "94e8c7a455ce21406d0662ed53fde2e06d10a9881c1c85e6f6426a82dfbe752a",
+      "riec_evidence_id": "EV-RIEC-CB3C35267DE0",
+      "riec_near_tie": false,
+      "riec_runner_up": "M5_product_time",
+      "riec_selection_canonical_sha256_normalized_run_id": "fa84acf54cc9e9965c0d98727238c4ce930b50616cfe1fd0011fee4812615c55",
+      "riec_winner": "M6_product_stream_shift_time",
+      "row_count": 1056,
+      "rows_per_product": 528,
+      "scenario_id": "batch_drift_change_point",
+      "scenario_version": "1.0.0",
+      "u1": {
+        "failed_replicates": 0,
+        "lower_bound": 0.5,
+        "protocol_id": "U1_group_bootstrap_bound",
+        "requested_replicates": 200,
+        "seed": 20260718,
+        "status": "ok",
+        "successful_replicates": 200
+      },
+      "unit": "mL"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "shared_policy": {
+    "alpha": 0.01,
+    "bootstrap_replicates": 200,
+    "bootstrap_seed": 20260718,
+    "lower_limit": 249.5,
+    "maximum_screening_shift": 0.5,
+    "measurement_resolution": 0.01,
+    "min_expected_tail_count": 5,
+    "minimum_actionable_shift": 0.05,
+    "nominal_quantity": 250.0,
+    "profile_id": "public-demo-policy.v1",
+    "protocol_spread_tolerance": 0.5,
+    "unit": "mL"
+  },
+  "summary_id": "riec-guard-demo-benchmark.v1",
+  "summary_version": "1.0.0"
+}
