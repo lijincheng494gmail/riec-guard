@@ -308,6 +308,20 @@
   "known_private_sha256": [],
   "allowlist_exceptions": [
     {
+      "path": "submission",
+      "finding_codes": [
+        "FORBIDDEN_FILENAME"
+      ],
+      "reason": "This path is a mandatory public Build Week release-artifact directory, not hidden submission state or private content."
+    },
+    {
+      "path": "submission/DEVPOST_SUBMISSION.md",
+      "finding_codes": [
+        "FORBIDDEN_FILENAME"
+      ],
+      "reason": "This path is mandatory public Build Week submission documentation, not hidden submission state or private content."
+    },
+    {
       "path": "tests/security/test_no_private_import_path.py",
       "finding_codes": [
         "FORBIDDEN_FILENAME"

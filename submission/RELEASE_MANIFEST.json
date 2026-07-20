@@ -1,0 +1,117 @@
+{
+  "accepted_baseline_commit": "afbbae5d0f597a973cb6c8a265677c7b0d839f25",
+  "branch": "build-week-2026",
+  "default_gpt_model": "gpt-5.6",
+  "documentation_files": [
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "docs/BUILD_WEEK_PROVENANCE.md",
+    "docs/JUDGING_GUIDE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/STREAMLIT_DEPLOYMENT.md"
+  ],
+  "external_actions": [
+    {
+      "action": "bounded_live_gpt_smoke",
+      "status": "human_required"
+    },
+    {
+      "action": "primary_codex_feedback_session_id",
+      "status": "human_required"
+    },
+    {
+      "action": "github_push_and_public_verification",
+      "status": "human_required"
+    },
+    {
+      "action": "streamlit_deployment",
+      "status": "human_required"
+    },
+    {
+      "action": "video_recording_and_public_youtube_upload",
+      "status": "human_required"
+    },
+    {
+      "action": "devpost_submission",
+      "status": "human_required"
+    }
+  ],
+  "intended_release_tag": "build-week-2026-submission-v1",
+  "license_identifier": "MIT",
+  "limitations": [
+    "Public synthetic mechanism demonstration only.",
+    "Retrospective screening aid, not a production setpoint.",
+    "Not a safety or compliance determination.",
+    "Not an achieved-savings claim.",
+    "Private adapters and industrial validation remain outside the public demonstration."
+  ],
+  "macro_commits": {
+    "MACRO-01": "a4f67564b8d23c6a62cb747e3b54c080366486dd",
+    "MACRO-02": "fe56580766b14b70da8efb047d996480fd3371de",
+    "MACRO-03": "61f8f15dfa1bc0e47c1a1d2f75fea135299fc3b2",
+    "MACRO-04": "e0fad6869b160988a03b44256b2de6ab72829a2c",
+    "MACRO-05": "afbbae5d0f597a973cb6c8a265677c7b0d839f25"
+  },
+  "manifest_version": "1.0.0",
+  "openai_sdk_version": "2.46.0",
+  "project_name": "RIEC Guard",
+  "prompt_versions": [
+    "contract-assistant.v1",
+    "decision-memo.v1",
+    "claim-auditor.v1"
+  ],
+  "public_entry_point": "streamlit_app.py",
+  "python_version": "3.12.13",
+  "scenarios": [
+    {
+      "action_state": "pilot_range_supported",
+      "dataset_sha256": "61406ba1733671cbe91350925e4e23a011bbd6b49c90d9d59ab16a74c23c8b5f",
+      "pilot_max": 0.4,
+      "pilot_min": 0.15,
+      "scenario_id": "stable_symmetric",
+      "scenario_version": "1.0.0",
+      "unit": "mL"
+    },
+    {
+      "action_state": "pilot_only_conservative",
+      "dataset_sha256": "9e92d093d625de0df94c201daed84752a73791ce07eda92a16e39b9a7e22562f",
+      "pilot_max": 0.14,
+      "pilot_min": 0.05,
+      "scenario_id": "heavy_tail_particulate",
+      "scenario_version": "1.0.0",
+      "unit": "mL"
+    },
+    {
+      "action_state": "diagnose_process_first",
+      "dataset_sha256": "fe3a280f6bd084e59b533083d97826d719eec58b8c01840102a6367a455abf24",
+      "pilot_max": null,
+      "pilot_min": null,
+      "scenario_id": "batch_drift_change_point",
+      "scenario_version": "1.0.0",
+      "unit": "mL"
+    }
+  ],
+  "streamlit_version": "1.59.2",
+  "submission_files": [
+    "submission/DEVPOST_SUBMISSION.md",
+    "submission/VIDEO_SCRIPT.md",
+    "submission/VIDEO_SHOTLIST.md",
+    "submission/EXTERNAL_RELEASE_CHECKLIST.md",
+    "submission/TESTING_INSTRUCTIONS.md",
+    "submission/RELEASE_MANIFEST.json"
+  ],
+  "test_commands": [
+    ".venv/bin/python scripts/check_build_week_release.py",
+    ".venv/bin/python scripts/run_gpt_workflow.py --scenario stable_symmetric --fixture",
+    ".venv/bin/python scripts/build_demo_assets.py --check",
+    ".venv/bin/python scripts/check_streamlit_app.py --app-test",
+    ".venv/bin/python scripts/check_streamlit_app.py --server-smoke",
+    ".venv/bin/python -m pytest -p no:cacheprovider tests/release/test_build_week_release.py",
+    "make test",
+    "make lint",
+    "make type-check",
+    "make release-scan"
+  ],
+  "track": "Work & Productivity"
+}

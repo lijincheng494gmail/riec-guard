@@ -1,351 +1,169 @@
-# RIEC Guard — Phase D System Architecture
+# RIEC Guard architecture
 
-Status: architecture baseline for Codex task generation  
-Product: **RIEC Guard — Fill Pack**  
-Track: **Work & Productivity**  
-Architecture version: `1.0.0`
+RIEC Guard is a public synthetic mechanism demo for auditable decisions from
+conflicting evidence. Deterministic Python owns every statistical value, gate,
+action state, pilot bound, and evidence identity. GPT-5.6 receives sanitized
+aggregate facts and is limited to structured explanation and claim review.
 
-## 1. Architectural intent
+## System map
 
-RIEC Guard turns a production-data file and an operating-policy description into an auditable, claim-bounded screening memo. It is intentionally split into three logical layers:
-
-1. **RIEC-L0 — contract and evidence boundary**
-   - profile a dataset without exposing raw rows to the language model;
-   - map uploaded columns to semantic roles;
-   - compile and validate an `AuditContract`;
-   - require confirmation of decision-critical fields.
-
-2. **RIEC-L1 — commensurable predictive candidate selection**
-   - evaluate one finite, versioned structural candidate library;
-   - use leave-one-deployment-group-out prediction;
-   - compute published-compatible row-weighted grouped risk;
-   - compute `BIC_eff`, baseline-normalized `XPE`, `C_lambda`, winner, runner-up, near ties, equivalence sets, and switching boundaries.
-
-3. **RIEC-L2 — protocol, action, and claim governance**
-   - run typed headroom protocols, uncertainty procedures, and screening gates;
-   - resolve conflicts without pretending unlike evidence objects are one score;
-   - produce one mutually exclusive action state;
-   - generate an evidence-linked memo and audit its claims.
-
-The numerical owner is always deterministic Python code. GPT-5.6 Sol is the language and orchestration layer, not the source of statistical values.
-
-## 2. Deployment profile
-
-### 2.1 Public Build Week product
-
-- Python 3.12 package.
-- Thin Streamlit web interface.
-- Shared application service used by the UI, CLI, tests, and benchmark scripts.
-- Ephemeral, run-scoped storage.
-- Public synthetic scenarios and demo-safe CSV uploads only.
-- No login, multi-tenant database, background queue, or production control integration.
-- OpenAI Responses API calls are stateless and use `store=false`.
-
-### 2.2 Local private research mode
-
-A separate, non-deployable adapter may analyze private industrial data on the user's machine. It has a physically separate input, cache, log, and artifact root. Private mode is not imported by, discoverable from, or configurable in the public deployment.
-
-The public application must remain identical whether private files exist elsewhere on disk.
-
-## 3. Trust zones
-
-```text
-ZONE A — Browser / untrusted input
-  CSV, short SOP text, structured form values
-             |
-             v
-ZONE B — Public deterministic application
-  upload guard -> profiler -> contract validator
-  -> RIEC engine -> protocols/gates -> action engine
-  -> evidence ledger -> deterministic renderer
-             |
-             | redacted schemas, summaries, evidence objects only
-             v
-ZONE C — OpenAI API
-  contract compiler / memo composer / claim auditor
-             |
-             v
-ZONE D — Run-scoped public artifacts
-  synthetic/public-upload audit bundle, then deletion
+```mermaid
+flowchart LR
+    A["Allowlisted public synthetic source"] --> B["Source integrity, profile, and confirmed contract"]
+    B --> C["Grouped RIEC-L1"]
+    C --> D["D0, H1, H2, H3, U1, G1, and G2"]
+    D --> E["Ordered six-state action engine"]
+    C --> F["RIEC evidence"]
+    F --> G["Protocol evidence"]
+    G --> H["Action evidence"]
+    H --> I["Sanitized EvidenceContext"]
+    I --> J["GPT-5.6 structured memo and claim audit"]
+    E --> K["Streamlit recorded or explicit recompute view"]
+    J --> K
+    K --> L["In-memory sanitized JSON download"]
 ```
 
-A separate `ZONE P — local private workspace` exists outside the public repository and deployment. Raw private rows may never cross into Zone C by default.
+The numerical path and GPT path meet only after the deterministic action and
+aggregate evidence have been validated.
 
-## 4. Component boundaries
+## 1. Source, profile, and contract boundary
 
-| Component | Owns | Must not own |
-|---|---|---|
-| `UploadGuard` | file type, byte/row/column limits, encoding, filename sanitization | semantic inference |
-| `DatasetProfiler` | deterministic types, missingness, counts, safe summaries, redacted mapping hints | policy values, decisions |
-| `ContractCompiler` | GPT/manual conversion of profile + policy context to draft typed contract | statistical calculation |
-| `ContractValidator` | schema, units, grouping, order, policy consistency, blocking/warning errors | silently filling unresolved values |
-| `CandidateRegistry` | finite, versioned model declarations | dynamic model search |
-| `RiecSelector` | fits/evaluates candidates and emits RIEC-L1 ledger | action recommendations |
-| `ProtocolEngine` | H1/H2/H3/U1/G1/G2 typed outputs | treating gates or bootstrap as model candidates |
-| `ActionEngine` | ordered state machine and pilot-reference screening range | production setpoint or compliance certification |
-| `EvidenceLedger` | immutable evidence IDs, provenance, dependencies, artifact references | prose-only findings |
-| `MemoComposer` | evidence-bound report draft | new numbers or uncited claims |
-| `ClaimPrecheck` | deterministic numeric/evidence/phrase checks | semantic judgment beyond fixed rules |
-| `ClaimAuditor` | structured claim classification and required edits | overriding deterministic blockers |
-| `AuditBundleExporter` | self-contained files and checksums | exporting blocked free-form reports |
-| `RunManifestWriter` | code, environment, input, model, seed, fallback, artifact provenance | prompts or secrets marked confidential |
+The analytical services accept run-owned source bytes rather than arbitrary file
+paths. Source identity and SHA-256 are checked before analysis. The deterministic
+profiler produces typed counts, missingness, and bounded semantic hints without
+publishing raw rows.
 
-## 5. End-to-end sequence
+An `AuditContract` fixes the response, product, deployment-group, order, stream,
+shift, unit, tail threshold, and policy settings. Decision-critical fields require
+explicit confirmation before analysis is permitted. GPT may suggest an advisory
+column-role mapping from a redacted profile, but it cannot confirm a contract or
+enable analysis.
 
-```text
-1. Source selection
-   built-in mechanism OR public CSV upload
-
-2. Deterministic profile
-   schema, counts, safe examples, mapping candidates
-
-3. Policy capture
-   structured form OR pasted text OR .txt file
-
-4. Contract compilation
-   GPT-5.6 Structured Output, manual form, or versioned built-in contract
-
-5. Deterministic validation and user confirmation
-   blocking fields cannot remain unresolved
-
-6. Data normalization
-   typed quantity, product, group, time, stream, shift;
-   optional explicit mass/volume conversion
-
-7. RIEC-L1 selection
-   exact LOGO folds -> candidate ledger -> equivalence set -> switchpoints
-
-8. RIEC-L2 protocols and gates
-   H1/H2/H3 -> U1 -> G1/G2
-
-9. Action decision
-   exactly one state, reason codes, claim boundary
-
-10. Evidence ledger finalization
-    canonical hashes and immutable evidence IDs
-
-11. Memo composition
-    read-only evidence tools; numeric placeholders only
-
-12. Deterministic report precheck
-    numeric binding, evidence existence, prohibited claim rules
-
-13. GPT-5.6 claim audit
-    structured classifications and replacement language
-
-14. Deterministic render and export
-    Markdown/HTML + complete audit bundle + checksums
-```
-
-No GPT-generated output may bypass steps 5, 10, 12, or 14.
-
-## 6. Shared application service
+The Streamlit product narrows this further: it exposes only three committed public
+synthetic scenarios and does not provide an arbitrary upload path.
 
-The UI and CLI call one service boundary:
-
-```python
-class AuditService:
-    def profile_source(source: SourceSpec) -> DatasetProfile: ...
-    def compile_contract(context: ContractCompileContext) -> AuditContractDraft: ...
-    def validate_contract(contract: AuditContract) -> ValidationReport: ...
-    def confirm_contract(contract: AuditContract) -> AuditContract: ...
-    def run_audit(contract: AuditContract, source: SourceSpec) -> AuditResult: ...
-    def compose_memo(run_id: str) -> ReportDraft: ...
-    def audit_claims(run_id: str, draft: ReportDraft) -> ClaimAudit: ...
-    def export_bundle(run_id: str) -> Path: ...
-```
-
-`run_audit` is an orchestrator over deterministic services. It does not contain statistical formulas itself. CLI, UI, tests, and benchmark code all import this service.
+## 2. Grouped RIEC-L1
 
-## 7. Deterministic analysis pipeline
+The grouped selector evaluates the frozen M0–M6 candidate library. It uses exact
+leave-one-deployment-group-out prediction, not random-row cross-validation. Each
+candidate retains fit and prediction feasibility, full-fit `BIC_eff`, row-weighted
+grouped predictive risk, baseline-relative `XPE`, and the combined `C_lambda`
+score.
+
+The result records the winner, runner-up, score gap, near-tie status, equivalence
+set, and a bounded switching diagnostic. The candidate registry is versioned and
+immutable; neither the UI nor GPT can add candidates or change the ranking.
+
+## 3. Deterministic protocols and gates
 
-### 7.1 Normalized domain table
-
-Internal canonical fields:
-
-```text
-row_id
-quantity
-product
-deployment_group
-time
-stream
-shift
-source_row_number
-```
-
-Optional fields:
-
-```text
-weight
-density
-tare
-```
-
-Every normalized row retains a source-row locator locally. The locator is never sent to GPT.
-
-### 7.2 RIEC-L1
-
-- Splitter: exact leave-one-deployment-group-out.
-- Default limit: at most 200 deployment groups for the public MVP.
-- Primary risk: sum of held-out squared errors divided by total held-out rows.
-- Secondary diagnostic: mean of group-specific MSEs.
-- Baseline: `M0_intercept`.
-- Candidate set: frozen registry, no dynamic search.
-- Score:
-  - effective information criterion from the full-data fit;
-  - baseline-normalized predictive term;
-  - `C_lambda` using contract value `c`.
-- Output:
-  - feasibility/failure per candidate;
-  - raw numeric winner and runner-up;
-  - absolute score gap;
-  - near-tie/equivalence set;
-  - pairwise switching values where identifiable.
-
-If exact group evaluation exceeds the declared scale limit, the service returns a structured `scale_limit` error. It must not silently fall back to random rows.
-
-### 7.3 Headroom protocols
-
-- `H1`: exact finite-sample empirical boundary under a strict `< lower_limit` underfill event.
-- `H2`: Gaussian residual-tail model using cross-fitted predictions from the selected equivalence set.
-- `H3`: Student-t residual-tail model with bounded degrees of freedom and fit timeout.
-- `U1`: whole-group bootstrap, conditional on the main selection.
-- `G1`: ordered stability screening only when order is confirmed.
-- `G2`: explicit evidence sufficiency.
-
-### 7.4 Action state machine
-
-Evaluation order is fixed:
-
-```text
-invalid contract
--> insufficient evidence
--> no actionable headroom
--> diagnose process first
--> pilot only conservative
--> pilot range supported
-```
-
-The first triggered state wins. The state machine is pure and deterministic.
-
-## 8. GPT-5.6 runtime
-
-Three calls are permitted:
-
-1. `contract_compile`
-2. `memo_draft`
-3. `claim_audit`
-
-Model configuration:
-
-```text
-model: gpt-5.6-sol
-API: Responses
-store: false
-```
-
-The product runtime exposes only read-only application functions to the memo composer:
-
-- `get_contract_summary`
-- `get_selection_summary`
-- `get_protocol_results`
-- `get_action_decision`
-- `get_evidence_items`
-- `get_claim_rules`
-
-No shell, browser, code interpreter, MCP, database write, filesystem write, or direct statistical-computation tool is available to the model.
-
-## 9. Report integrity
-
-GPT produces templates such as:
-
-```text
-The screening headroom is {{safe_headroom}} [EV-ACTION-...].
-```
-
-A deterministic binding table maps each placeholder to one evidence item and JSON pointer. The renderer inserts formatted values. Any uncited number, unknown evidence ID, mismatched binding, or prohibited statement blocks free-form export.
-
-A deterministic report template remains available when API access fails.
-
-## 10. Persistence and cleanup
-
-Public mode creates:
-
-```text
-<ephemeral_root>/<run_id>/
-  inputs/
-  normalized/
-  artifacts/
-  telemetry/
-```
-
-Rules:
-
-- filenames are replaced with generated artifact IDs;
-- original display names are metadata only;
-- paths cannot contain user-controlled traversal;
-- uploaded bytes and derived row-level files are removed at session/run expiry;
-- audit bundles are created on demand;
-- no shared database or cross-user cache;
-- logs contain hashes, counts, status, timing, and error classes—not raw rows or full SOP text.
-
-## 11. Failure semantics
-
-Every recoverable or terminal failure returns `ERROR_ENVELOPE_SCHEMA.json`.
-
-Examples:
-
-- malformed file -> structured upload error;
-- missing group -> blocking contract error;
-- >200 groups -> explicit scale error;
-- parametric fit timeout -> protocol ineligible, not fabricated result;
-- API unavailable -> labelled manual/template fallback;
-- claim audit unavailable -> free-form GPT memo blocked; deterministic memo can still export with warning;
-- release scan failure -> export/deployment blocked.
-
-## 12. Required audit bundle
-
-```text
-audit_contract.json
-candidate_registry.json
-candidate_ledger.csv
-fold_metrics.csv
-selection.json
-pairwise_switches.csv
-protocol_results.json
-action_decision.json
-evidence_ledger.json
-claim_map.json
-claim_audit.json
-report.md
-report.html
-run_manifest.json
-artifact_checksums.sha256
-```
-
-PDF is optional and outside P0.
-
-## 13. Requirement traceability
-
-Every Phase C P0 requirement is mapped in `ARCHITECTURE_REQUIREMENTS_TRACEABILITY.csv`. The architecture exit gate requires:
-
-- all P0 rows mapped to a component, schema, and future test;
-- all supplied JSON examples validate;
-- the GPT/numeric boundary is explicit;
-- no public component can discover a private path;
-- one public built-in scenario runs end to end from a clean environment;
-- deterministic and GPT fallback labels are preserved in the manifest.
-
-## 14. Architecture non-goals
-
-The MVP is not:
-
-- closed-loop control;
-- a production setpoint optimizer;
-- regulatory certification;
-- a general-purpose AutoML system;
-- a multi-tenant SaaS;
-- a repository for private industrial data;
-- evidence of achieved material savings;
-- a replacement for engineering review or controlled pilots.
+The selected RIEC result feeds seven typed entries:
+
+- D0: descriptive mean diagnostic;
+- H1: empirical strict-tail headroom;
+- H2: Gaussian residual-tail headroom;
+- H3: Student-t residual-tail headroom;
+- U1: whole-deployment-group bootstrap, conditional on the selected model;
+- G1: ordered stability screen; and
+- G2: evidence sufficiency gate.
+
+Production defaults use 200 whole-group bootstrap replicates. Protocols remain
+separate evidence objects: a parametric tail estimate, empirical boundary,
+bootstrap bound, stability screen, and sufficiency gate are not collapsed into a
+single invented score. A deterministic conflict summary preserves material
+disagreement.
+
+## 4. Six-state action engine
+
+The pure state machine evaluates states in this fixed order:
+
+1. `invalid_contract`;
+2. `insufficient_evidence`;
+3. `no_actionable_headroom`;
+4. `diagnose_process_first`;
+5. `pilot_only_conservative`; and
+6. `pilot_range_supported`.
+
+The first triggered state wins. Any displayed interval is a retrospective
+screening reference that still requires a controlled pilot and engineering review;
+it is not a production setpoint.
+
+## 5. Evidence DAG
+
+Aggregate evidence is content-addressed and run-owned. The public decision chain is
+`RIEC -> PROTOCOL -> ACTION`: each item binds its source hashes, canonical content,
+parents, and evidence ID. Cross-run rebinding and forged lifecycle completion are
+rejected.
+
+Recorded demo summaries preserve the same three-node chain. The UI verifies the
+catalog, summary, CSV, policy, action, evidence IDs, parent links, and hashes before
+projecting immutable display models. It never renders a complete internal canonical
+object.
+
+## 6. GPT-5.6 structured layer
+
+The bounded workflow has three typed tasks:
+
+1. advisory contract-role suggestion;
+2. evidence-linked decision memo; and
+3. claim audit.
+
+The live adapter fixes the model to `gpt-5.6`, uses structured Pydantic outputs,
+sets `store=false`, supplies no tools, and bounds retries and timeouts. Prompts are
+versioned in code. Returned metadata binds task, mode, model, prompt version, input
+hash, output hash, and response ID when present.
+
+Before a memo is accepted, deterministic validators check its numbers, citations,
+action semantics, limitations, and prohibited claims. The claim audit cannot weaken
+a deterministic blocker. If narrative assistance fails, the deterministic audit
+remains available.
+
+## 7. Streamlit modes
+
+The default recorded mode validates and displays committed production-default
+results. It performs no statistical recomputation on import, page load, scenario
+change, fixture generation, or download.
+
+`Recompute deterministic audit` is the only recompute trigger. It runs one
+allowlisted scenario through the accepted pipeline with 200 whole-group bootstrap
+replicates and verifies the result against the committed record.
+
+GPT also has two explicit modes:
+
+- Fixture mode runs the complete typed workflow through a deterministic non-live
+  client and requires no credential or network request.
+- Live mode appears only when a server-side credential and strict enable flag are
+  present. It additionally requires acknowledgement and an explicit click, and
+  permits at most one successful run per scenario per session.
+
+No client, analysis, or network operation is created during module import.
+
+## 8. Privacy and threat boundaries
+
+- GPT receives only an allowlisted `EvidenceContext` of aggregate facts and
+  evidence IDs—never CSV contents, raw rows, residual arrays, row predictions,
+  local paths, prompts, credentials, or hidden reasoning.
+- The deployment credential is read server-side only at the explicit live action.
+  It is not placed in session state, cache, disk, logs, errors, or downloads.
+- Narrative and recompute results are scenario-scoped and session-local. Scenario
+  changes clear prior narrative output.
+- The download packet is deterministic JSON assembled in memory from an explicit
+  allowlist. It contains no raw data or runtime trace.
+- Unknown scenario identifiers and path-shaped input fail closed.
+- Public and local industrial data boundaries remain separate; this repository
+  contains only public synthetic demonstration data.
+
+## 9. Why code owns the numbers
+
+The action must be reproducible from a fixed contract, dataset identity, registry,
+policy, and seed. Language-model output is probabilistic and therefore cannot own
+tail estimates, grouped validation, evidence sufficiency, action ordering, or pilot
+bounds. RIEC Guard computes and hashes those results first, then allows GPT-5.6 to
+explain only verified facts and audit the wording against the same evidence.
+
+## Scope
+
+This release is retrospective screening software demonstrated on public synthetic
+mechanisms. It does not establish causality, optimization, production safety,
+compliance, achieved savings, or a production setpoint. External deployment and
+live industrial validation remain human-controlled activities outside this local
+release.
