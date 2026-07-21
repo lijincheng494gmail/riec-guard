@@ -23,7 +23,10 @@ from riec_guard.ui.copy import (
     PRODUCT_NAME,
     PRODUCT_SUPPORTING_LINE,
     PRODUCT_TAGLINE,
+    PUBLIC_DEMO_GUIDE,
     PUBLIC_DEMO_DISCLAIMER,
+    PUBLIC_RECORDED_MODE_CAPTION,
+    RECOMPUTE_UNAVAILABLE_MESSAGE,
 )
 from riec_guard.ui.models import UiGptResult, UiScenarioBundle
 
@@ -40,6 +43,7 @@ def main() -> None:
     st.set_page_config(page_title="RIEC Guard", page_icon="🛡️", layout="wide")
     _initialize_state()
     _render_header()
+    recompute_enabled = _recompute_enabled()
 
     try:
         definitions_result = backend.load_verified_scenario_definitions()
@@ -64,12 +68,12 @@ def main() -> None:
     scenario_id = str(scenario_id)
     _handle_scenario_change(scenario_id)
 
-    bundle = _selected_bundle(scenario_id)
+    bundle = _selected_bundle(scenario_id, allow_recomputed=recompute_enabled)
     if bundle is None:
         return
     st.caption(f"{bundle.definition.mechanism_description} {bundle.definition.limitation}")
 
-    if st.button("Recompute deterministic audit", key="recompute_audit"):
+    if recompute_enabled and st.button("Recompute deterministic audit", key="recompute_audit"):
         try:
             with st.spinner("Running the accepted production-default audit…"):
                 recomputed = backend.recompute_public_scenario(scenario_id)
@@ -81,16 +85,13 @@ def main() -> None:
             st.session_state[_RECOMPUTED_RESULTS] = stored
             bundle = recomputed
             st.success("Deterministic recomputation completed and was verified against the record.")
-        elif isinstance(recomputed, ErrorEnvelope):
-            _render_error(recomputed)
         else:
-            _render_fixed_error(
-                "The deterministic audit could not be recomputed safely.",
-                "Keep using the verified recorded audit or retry once.",
-            )
+            st.warning(RECOMPUTE_UNAVAILABLE_MESSAGE)
 
     st.markdown(f"**{bundle.result_source}**")
     st.caption(bundle.source_explanation)
+    if bundle.result_source.startswith("Recorded"):
+        st.caption(PUBLIC_RECORDED_MODE_CAPTION)
 
     decision_tab, evidence_tab, gpt_tab, method_tab = st.tabs(
         ["Decision", "Evidence", "GPT-5.6", "Method"]
@@ -123,6 +124,8 @@ def _render_header() -> None:
     st.subheader(PRODUCT_TAGLINE)
     st.markdown(PRODUCT_SUPPORTING_LINE)
     st.info(PUBLIC_DEMO_DISCLAIMER)
+    with st.expander("How to use this demo", expanded=False):
+        st.markdown(PUBLIC_DEMO_GUIDE)
     st.markdown(f"`{PIPELINE_RIBBON}`")
 
 
@@ -139,10 +142,15 @@ def _handle_scenario_change(scenario_id: str) -> None:
         st.session_state[_PREVIOUS_SCENARIO] = scenario_id
 
 
-def _selected_bundle(scenario_id: str) -> UiScenarioBundle | None:
-    recomputed = _bundle_results(_RECOMPUTED_RESULTS).get(scenario_id)
-    if isinstance(recomputed, UiScenarioBundle):
-        return recomputed
+def _selected_bundle(
+    scenario_id: str,
+    *,
+    allow_recomputed: bool,
+) -> UiScenarioBundle | None:
+    if allow_recomputed:
+        recomputed = _bundle_results(_RECOMPUTED_RESULTS).get(scenario_id)
+        if isinstance(recomputed, UiScenarioBundle):
+            return recomputed
     try:
         result = backend.load_verified_recorded_scenario(scenario_id)
     except Exception:
@@ -166,11 +174,12 @@ def _render_decision(bundle: UiScenarioBundle) -> None:
     st.caption(f"Decision unit: {decision.unit}")
     st.caption(f"Deterministic-result source: {bundle.result_source}")
     st.write(ACTION_GUIDANCE[decision.action_state])
-    metrics = st.columns(4)
+    metrics = st.columns(3)
     metrics[0].metric("Rows", f"{bundle.row_count:,}")
     metrics[1].metric("Deployment groups", bundle.deployment_group_count)
     metrics[2].metric("Products", bundle.product_count)
-    metrics[3].metric("RIEC winner", bundle.riec_winner)
+    st.caption("RIEC winner")
+    st.code(bundle.riec_winner, language=None, wrap_lines=True)
 
     gate_by_id = {gate.gate_id: gate for gate in bundle.gates}
     detail_columns = st.columns(3)
@@ -509,6 +518,10 @@ def _live_configuration() -> tuple[bool, str | None]:
         key_value if isinstance(key_value, str) and bool(key_value.strip()) else None
     )
     return enabled, deployment_credential
+
+
+def _recompute_enabled() -> bool:
+    return os.environ.get("RIEC_GUARD_RECOMPUTE_ENABLED") in {"true", "1", "yes"}
 
 
 def _server_setting(name: str) -> object | None:

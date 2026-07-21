@@ -11,6 +11,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from riec_guard.errors import ErrorEnvelope
+from riec_guard.ui import app as ui_app
 from riec_guard.ui import backend
 from riec_guard.ui.copy import GPT_DOES_NOT_DECIDE
 from riec_guard.ui.models import UiDownloadPacket, UiGptResult, UiScenarioBundle
@@ -102,19 +103,53 @@ def test_root_entry_point_is_narrow_and_import_has_no_runtime_side_effect_call()
     tree = ast.parse(source, filename=_APPLICATION_PATH.name)
     imports = [node for node in tree.body if isinstance(node, (ast.Import, ast.ImportFrom))]
 
-    assert len(imports) == 1
-    root_import = imports[0]
-    assert isinstance(root_import, ast.ImportFrom)
-    assert root_import.module == "riec_guard.ui.app"
-    assert [(alias.name, alias.asname) for alias in root_import.names] == [("main", None)]
-    executable = [node for node in tree.body if not isinstance(node, (ast.Import, ast.ImportFrom))]
-    assert len(executable) == 1 and isinstance(executable[0], ast.If)
-    guard = executable[0]
+    assert imports == []
+    assert len(tree.body) == 2
+    entry_function, guard = tree.body
+    assert isinstance(entry_function, ast.FunctionDef)
+    assert entry_function.name == "main"
+    assert entry_function.args.args == []
+    assert len(entry_function.body) == 2
+    lazy_import, run_call = entry_function.body
+    assert isinstance(lazy_import, ast.ImportFrom)
+    assert lazy_import.module == "riec_guard.ui.app"
+    assert [(alias.name, alias.asname) for alias in lazy_import.names] == [("main", "run_app")]
+    assert isinstance(run_call, ast.Expr)
+    assert ast.unparse(run_call.value) == "run_app()"
+    assert isinstance(guard, ast.If)
     assert ast.unparse(guard.test) == "__name__ == '__main__'"
     assert len(guard.body) == 1
     assert isinstance(guard.body[0], ast.Expr)
     assert ast.unparse(guard.body[0].value) == "main()"
     assert guard.orelse == []
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    (
+        (None, False),
+        ("", False),
+        ("true", True),
+        ("1", True),
+        ("yes", True),
+        ("TRUE", False),
+        (" yes ", False),
+        ("on", False),
+        ("false", False),
+        ("0", False),
+    ),
+)
+def test_recompute_enablement_uses_only_exact_environment_values(
+    monkeypatch: pytest.MonkeyPatch,
+    value: str | None,
+    expected: bool,
+) -> None:
+    if value is None:
+        monkeypatch.delenv("RIEC_GUARD_RECOMPUTE_ENABLED", raising=False)
+    else:
+        monkeypatch.setenv("RIEC_GUARD_RECOMPUTE_ENABLED", value)
+
+    assert ui_app._recompute_enabled() is expected
 
 
 def test_expensive_analysis_gpt_network_and_write_calls_are_not_at_module_scope() -> None:

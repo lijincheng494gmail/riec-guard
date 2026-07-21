@@ -13,6 +13,44 @@ PUBLIC_DEMO_DISCLAIMER = (
     "Public synthetic mechanism demo. Retrospective screening only—not a production setpoint, "
     "safety determination, compliance determination, or achieved-savings claim."
 )
+PUBLIC_DEMO_GUIDE = """
+**Quick walkthrough**
+
+1. Select one of the three public synthetic scenarios.
+2. Read the Decision tab for the action and any retrospective screening range.
+3. Open Evidence to compare H1, H2, H3, U1, G1, and G2.
+4. Open GPT-5.6 and select `Generate offline fixture memo`.
+5. Review the evidence-linked memo and claim audit.
+6. Download the sanitized decision packet when useful.
+
+**Expected scenario behavior**
+
+- Stable symmetric process: controlled pilot range supported; 0.15–0.40 mL.
+- Heavy-tail particulate variation: conservative pilot only; 0.05–0.14 mL; material protocol conflict.
+- Batch drift and change point: diagnose process first; no pilot interval.
+
+**Deterministic/GPT boundary**
+
+- Deterministic Python owns every numerical result and action.
+- GPT-5.6 explains sanitized aggregate evidence and audits language.
+- Raw rows are not sent to GPT.
+- The offline fixture makes no API request.
+
+**Recorded-result explanation**
+
+The public app defaults to the committed recorded audit. It was generated using 200 whole-group
+bootstrap replicates and is bound to the committed synthetic dataset by SHA-256. This is a
+retrospective screening demonstration, not a production setpoint, safety determination, compliance
+determination, or achieved-savings claim.
+""".strip()
+PUBLIC_RECORDED_MODE_CAPTION = (
+    "This public demo uses the verified recorded audit. Deterministic recomputation is available "
+    "only in explicitly enabled development environments."
+)
+RECOMPUTE_UNAVAILABLE_MESSAGE = (
+    "Live recomputation is unavailable in this environment. The verified recorded audit remains "
+    "active."
+)
 PIPELINE_RIBBON = "Profile → Contract → RIEC → Protocols → Action → GPT memo → Claim audit"
 RECORDED_SOURCE_LABEL = "Recorded deterministic audit"
 RECORDED_SOURCE_EXPLANATION = (
@@ -129,9 +167,12 @@ __all__ = [
     "PRODUCT_TAGLINE",
     "PROTOCOL_NAMES",
     "PROTOCOL_ROLES",
+    "PUBLIC_DEMO_GUIDE",
     "PUBLIC_DEMO_DISCLAIMER",
+    "PUBLIC_RECORDED_MODE_CAPTION",
     "RECORDED_SOURCE_EXPLANATION",
     "RECORDED_SOURCE_LABEL",
+    "RECOMPUTE_UNAVAILABLE_MESSAGE",
     "RECOMPUTED_SOURCE_EXPLANATION",
     "RECOMPUTED_SOURCE_LABEL",
 ]
